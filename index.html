@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Focal — Finally learn your camera</title>
+<meta name="description" content="Focal is a gamified learning app for people with real cameras. Five minutes a day, no camera in hand required — come back to your camera actually knowing what the dials do.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* InkUI tokens (packages/ink/lib/theme/tokens.dart) */
+  :root {
+    --bg-primary: #F5F5F5;
+    --bg-secondary: #FFFFFF;
+    --fg-primary: #3A3A3A;
+    --fg-primary-focus: #000000;
+    --fg-secondary: #9A9A9A;
+    --a-info: #5B8FB9;
+    --a-info-focus: #3A7AAD;
+    --r-sm: 8px; --r-md: 16px; --r-lg: 24px;
+    --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #121212;
+      --bg-secondary: #1E1E1E;
+      --fg-primary: #E5E5E5;
+      --fg-primary-focus: #FFFFFF;
+      --fg-secondary: #606060;
+      --a-info: #90CDF4;
+      --a-info-focus: #B8E2FF;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg-primary);
+    color: var(--fg-primary);
+    font-family: 'Spectral', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: var(--sp-xxl) var(--sp-lg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .mark {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--fg-primary-focus);
+    margin-bottom: var(--sp-xxl);
+  }
+  .mark .dot { color: var(--a-info); }
+  h1 {
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--fg-primary-focus);
+    margin-bottom: var(--sp-lg);
+  }
+  .sub {
+    font-size: 22px;
+    font-weight: 300;
+    margin-bottom: var(--sp-xl);
+    max-width: 34em;
+  }
+  .points {
+    list-style: none;
+    margin-bottom: var(--sp-xxl);
+  }
+  .points li {
+    padding: var(--sp-md) 0;
+    border-top: 1px solid var(--bg-secondary);
+    font-size: 18px;
+  }
+  .points li:last-child { border-bottom: 1px solid var(--bg-secondary); }
+  .points strong { font-weight: 600; color: var(--fg-primary-focus); }
+  .cta {
+    display: inline-block;
+    background: var(--bg-secondary);
+    border: 1px solid var(--a-info);
+    border-radius: var(--r-sm);
+    color: var(--a-info);
+    padding: var(--sp-md) var(--sp-lg);
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 120ms ease, border-color 120ms ease;
+    align-self: flex-start;
+  }
+  .cta:hover { color: var(--a-info-focus); border-color: var(--a-info-focus); }
+  .season { color: var(--fg-secondary); font-style: italic; margin-top: var(--sp-md); }
+  footer {
+    padding: var(--sp-lg);
+    text-align: center;
+    color: var(--fg-secondary);
+    font-size: 16px;
+  }
+  footer a { color: var(--fg-secondary); }
+  @media (max-width: 480px) {
+    h1 { font-size: 28px; }
+    .sub { font-size: 18px; }
+    main { padding: var(--sp-xl) var(--sp-md); }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="mark">focal<span class="dot">.</span></div>
+  <h1>Your camera deserves better than the shelf.</h1>
+  <p class="sub">Focal is a gamified learning app for people with real cameras — five minutes a day, phone in hand, camera anywhere. Come back to it actually knowing what the dials do.</p>
+  <ul class="points">
+    <li><strong>Learn by doing, not reading.</strong> Interactive lessons where you feel aperture, shutter, and light before anyone explains them.</li>
+    <li><strong>Games are the test.</strong> Every lesson ends in a mini-game that measures what stuck — and the app adapts to what didn't.</li>
+    <li><strong>Built on your camera.</strong> Tell Focal what gear you own and lessons speak its language, dial for dial.</li>
+  </ul>
+  <a class="cta" href="mailto:hello@focalhq.io?subject=Keep%20me%20posted">Get launch updates &rarr;</a>
+  <p class="season">Coming this winter.</p>
+</main>
+<footer>
+  <span>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></span>
+</footer>
+</body>
+</html>
