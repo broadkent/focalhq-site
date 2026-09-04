@@ -51,7 +51,7 @@
     margin-bottom: var(--sp-xxl);
   }
   .mark .dot { color: var(--fg-primary-focus); }
-  .mark i { font-size: 24px; margin-right: var(--sp-sm); }
+  .mark i { font-size: 24px; margin-right: var(--sp-sm); position: relative; top: 3px; /* optical baseline alignment — icon glyphs don't sit on the text baseline (Kent, 09-04) */ }
   h1 {
     text-wrap: balance;
     font-size: 36px;
@@ -85,6 +85,8 @@
     font-size: 24px;
     color: var(--fg-primary);
     flex-shrink: 0;
+    position: relative;
+    top: 3px; /* optical baseline alignment — icon glyphs don't sit on the text baseline (Kent, 09-04) */
   }
   .points strong { font-weight: 600; color: var(--fg-primary-focus); }
   form.signup {
