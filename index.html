@@ -121,6 +121,29 @@
   }
   .signup button:hover { background: var(--fg-primary-focus); }
   .signup-note { color: var(--fg-secondary); font-size: 16px; margin-bottom: var(--sp-md); }
+  .photog-cta {
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-md);
+    background: var(--bg-secondary);
+    border: var(--stroke) solid var(--fg-secondary);
+    border-radius: var(--r-sm);
+    padding: var(--sp-md) var(--sp-lg);
+    margin-bottom: var(--sp-xl);
+    color: var(--fg-primary);
+    text-decoration: none;
+    transition: border-color 150ms ease-in-out;
+  }
+  .photog-cta:hover { border-color: var(--fg-primary-focus); }
+  .photog-cta strong { font-weight: 600; color: var(--fg-primary-focus); }
+  .photog-cta i {
+    font-size: 24px;
+    color: var(--fg-primary);
+    flex-shrink: 0;
+    position: relative;
+    top: 3px; /* optical baseline alignment — icon glyphs don't sit on the text baseline (Kent, 09-04) */
+  }
+  .photog-cta .arrow { margin-left: auto; }
   .season { color: var(--fg-secondary); font-style: italic; }
   footer {
     padding: var(--sp-lg);
@@ -153,6 +176,11 @@
     <button type="submit">Get launch updates</button>
   </form>
   <p class="signup-note" id="signup-note">One email when we launch, maybe two before. No spam, ever.</p>
+  <a class="photog-cta" href="/photographers">
+    <i class="ph-duotone ph-camera"></i>
+    <span><strong>Photographers:</strong> teach with your work. Get credit. Get paid.</span>
+    <i class="ph-duotone ph-arrow-right arrow"></i>
+  </a>
   <p class="season">Coming this winter.</p>
 </main>
 <footer>
