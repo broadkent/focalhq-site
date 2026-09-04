@@ -7,7 +7,7 @@
 <meta name="description" content="Focal is Duolingo for photography: five-minute gamified lessons that actually teach you photography.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <style>
   /* InkUI light tokens (packages/ink/lib/theme/tokens.dart) */
@@ -61,7 +61,7 @@
   }
   .mark {
     font-size: 22px;
-    font-weight: 600;
+    font-weight: 700; /* titleSmall */
     letter-spacing: 0.02em;
     color: var(--fg-primary-focus);
     margin-bottom: var(--sp-xxl);
@@ -71,7 +71,7 @@
   h1 {
     text-wrap: balance;
     font-size: 36px;
-    font-weight: 500;
+    font-weight: 700; /* titleLarge */
     line-height: 1.25;
     color: var(--fg-primary-focus);
     margin-bottom: var(--sp-lg);
@@ -79,7 +79,7 @@
   .sub {
     text-wrap: balance;
     font-size: 22px;
-    font-weight: 300;
+    font-weight: 400;
     margin-bottom: var(--sp-xl);
     max-width: 34em;
   }
@@ -124,6 +124,7 @@
   }
   .signup input[type=email]:focus { outline: none; border-color: var(--fg-primary-focus); }
   .signup button {
+    font-weight: 600; /* labelLarge */
     background: var(--a-info);
     border: none;
     border-radius: var(--r-sm);
@@ -173,7 +174,7 @@
 </main>
 <footer>
   <span>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></span>
-  <br><span style="font-size:13px">Duolingo is a trademark of Duolingo, Inc. Focal is not affiliated with or endorsed by Duolingo.</span>
+  <br><span style="font-size:16px">Duolingo is a trademark of Duolingo, Inc. Focal is not affiliated with or endorsed by Duolingo.</span>
 </footer>
 <script>
   if (new URLSearchParams(location.search).has('thanks')) {
