@@ -47,12 +47,11 @@
   .mark {
     font-size: 22px;
     font-weight: 700; /* titleSmall */
-    letter-spacing: 0.02em;
     color: var(--fg-primary-focus);
     margin-bottom: var(--sp-xxl);
   }
   .mark .dot { color: var(--fg-primary-focus); }
-  .mark i { font-size: 24px; position: relative; top: 3px; margin-right: var(--sp-sm); }
+  .mark i { font-size: 24px; margin-right: var(--sp-sm); }
   h1 {
     text-wrap: balance;
     font-size: 36px;
@@ -63,8 +62,8 @@
   }
   .sub {
     text-wrap: balance;
-    font-size: 22px;
-    font-weight: 400;
+    font-size: 18px;
+    font-weight: 400; /* bodyMedium */
     margin-bottom: var(--sp-xl);
     max-width: 34em;
   }
@@ -86,8 +85,6 @@
     font-size: 24px;
     color: var(--fg-primary);
     flex-shrink: 0;
-    position: relative;
-    top: 3px;
   }
   .points strong { font-weight: 600; color: var(--fg-primary-focus); }
   form.signup {
@@ -132,7 +129,6 @@
   footer a { color: var(--fg-secondary); }
   @media (max-width: 480px) {
     h1 { font-size: 28px; }
-    .sub { font-size: 18px; }
     main { padding: var(--sp-xl) var(--sp-md); }
   }
 </style>
