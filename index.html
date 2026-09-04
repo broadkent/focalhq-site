@@ -11,6 +11,7 @@
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <style>
   /* InkUI light tokens (packages/ink/lib/theme/tokens.dart) */
+  /* InkUI light tokens; dark below follows the user's system preference */
   :root {
     --bg-primary: #F5F5F5;
     --bg-secondary: #FFFFFF;
@@ -20,8 +21,22 @@
     --a-info: #3A3A3A;
     --a-info-focus: #000000;
     --a-success: #3A3A3A;
+    --btn-fg: #FFFFFF;
     --r-sm: 8px; --r-md: 16px; --stroke: 4px;
     --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #121212;
+      --bg-secondary: #1E1E1E;
+      --fg-primary: #E5E5E5;
+      --fg-primary-focus: #FFFFFF;
+      --fg-secondary: #606060;
+      --a-info: #E5E5E5;
+      --a-info-focus: #FFFFFF;
+      --a-success: #E5E5E5;
+      --btn-fg: #121212;
+    }
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -112,7 +127,7 @@
     background: var(--a-info);
     border: none;
     border-radius: var(--r-sm);
-    color: #FFFFFF;
+    color: var(--btn-fg);
     padding: var(--sp-md) var(--sp-lg);
     font-family: inherit;
     font-size: 18px;
