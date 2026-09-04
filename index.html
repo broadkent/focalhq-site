@@ -20,7 +20,7 @@
     --a-info: #3A3A3A;
     --a-info-focus: #000000;
     --a-success: #3A3A3A;
-    --r-sm: 8px; --r-md: 16px;
+    --r-sm: 8px; --r-md: 16px; --stroke: 4px;
     --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -77,11 +77,11 @@
     display: flex;
     align-items: baseline;
     gap: var(--sp-md);
-    padding: var(--sp-md) 0;
-    border-top: 1px solid #E4E4E4;
+    padding: var(--sp-lg) 0;
     font-size: 18px;
   }
-  .points li:last-child { border-bottom: 1px solid #E4E4E4; }
+  .points li + li::before { content: none; }
+  .points li:not(:first-child) { border-top: var(--stroke) solid var(--fg-secondary); }
   .points i {
     font-size: 24px;
     color: var(--a-info);
@@ -100,14 +100,14 @@
     flex: 1;
     min-width: 220px;
     background: var(--bg-secondary);
-    border: 1px solid #E4E4E4;
+    border: var(--stroke) solid var(--fg-secondary);
     border-radius: var(--r-sm);
     padding: var(--sp-md);
     font-family: inherit;
     font-size: 18px;
     color: var(--fg-primary);
   }
-  .signup input[type=email]:focus { outline: none; border-color: var(--a-info); }
+  .signup input[type=email]:focus { outline: none; border-color: var(--fg-primary-focus); }
   .signup button {
     background: var(--a-info);
     border: none;
