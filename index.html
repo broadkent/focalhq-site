@@ -54,6 +54,7 @@
   .mark .dot { color: var(--fg-secondary); }
   .mark i { font-size: 24px; position: relative; top: 3px; margin-right: 6px; }
   h1 {
+    text-wrap: balance;
     font-size: 36px;
     font-weight: 500;
     line-height: 1.25;
@@ -61,6 +62,7 @@
     margin-bottom: var(--sp-lg);
   }
   .sub {
+    text-wrap: balance;
     font-size: 22px;
     font-weight: 300;
     margin-bottom: var(--sp-xl);
@@ -70,6 +72,7 @@
     list-style: none;
     margin-bottom: var(--sp-xl);
   }
+  .points span { text-wrap: pretty; }
   .points li {
     display: flex;
     align-items: baseline;
@@ -139,9 +142,9 @@
   <h1>Duolingo for photography.</h1>
   <p class="sub">Five-minute gamified lessons that actually teach you photography: aperture, shutter, light, and the eye to use them.</p>
   <ul class="points">
-    <li><i class="ph-duotone ph-sliders-horizontal"></i><span><strong>Learn by doing, not reading.</strong> Interactive lessons where you feel aperture, shutter, and light before anyone explains them.</span></li>
-    <li><i class="ph-duotone ph-lightning"></i><span><strong>Five minutes, actually fun.</strong> Quick, playful sessions that fit anywhere in your day.</span></li>
-    <li><i class="ph-duotone ph-path"></i><span><strong>It learns you back.</strong> Focal finds what you know and teaches what you don't. A path built just for you.</span></li>
+    <li><i class="ph-duotone ph-sliders-horizontal"></i><span><strong>Learn by doing, not reading.</strong><br>Interactive lessons where you feel aperture, shutter, and light before anyone explains them.</span></li>
+    <li><i class="ph-duotone ph-lightning"></i><span><strong>Five minutes, actually fun.</strong><br>Quick, playful sessions that fit anywhere in your day.</span></li>
+    <li><i class="ph-duotone ph-path"></i><span><strong>It learns you back.</strong><br>Focal finds what you know and teaches what you don't. A path built just for you.</span></li>
   </ul>
   <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
     <input type="hidden" name="_subject" value="Focal launch list signup">
