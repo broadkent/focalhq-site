@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Focal — Finally learn your camera</title>
-<meta name="description" content="Focal is a gamified learning app for people with real cameras. Five minutes a day, no camera in hand required — come back to your camera actually knowing what the dials do.">
+<title>Focal — Duolingo for photography</title>
+<meta name="description" content="Focal is Duolingo for photography: five-minute gamified lessons that teach you your real camera — no camera in hand required.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <style>
-  /* InkUI tokens (packages/ink/lib/theme/tokens.dart) */
+  /* InkUI light tokens (packages/ink/lib/theme/tokens.dart) */
   :root {
     --bg-primary: #F5F5F5;
     --bg-secondary: #FFFFFF;
@@ -18,19 +19,9 @@
     --fg-secondary: #9A9A9A;
     --a-info: #5B8FB9;
     --a-info-focus: #3A7AAD;
-    --r-sm: 8px; --r-md: 16px; --r-lg: 24px;
+    --a-success: #5A9A6B;
+    --r-sm: 8px; --r-md: 16px;
     --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg-primary: #121212;
-      --bg-secondary: #1E1E1E;
-      --fg-primary: #E5E5E5;
-      --fg-primary-focus: #FFFFFF;
-      --fg-secondary: #606060;
-      --a-info: #90CDF4;
-      --a-info-focus: #B8E2FF;
-    }
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -76,29 +67,57 @@
   }
   .points {
     list-style: none;
-    margin-bottom: var(--sp-xxl);
+    margin-bottom: var(--sp-xl);
   }
   .points li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-md);
     padding: var(--sp-md) 0;
-    border-top: 1px solid var(--bg-secondary);
+    border-top: 1px solid #E4E4E4;
     font-size: 18px;
   }
-  .points li:last-child { border-bottom: 1px solid var(--bg-secondary); }
-  .points strong { font-weight: 600; color: var(--fg-primary-focus); }
-  .cta {
-    display: inline-block;
-    background: var(--bg-secondary);
-    border: 1px solid var(--a-info);
-    border-radius: var(--r-sm);
+  .points li:last-child { border-bottom: 1px solid #E4E4E4; }
+  .points i {
+    font-size: 24px;
     color: var(--a-info);
-    padding: var(--sp-md) var(--sp-lg);
-    text-decoration: none;
-    font-size: 18px;
-    transition: color 120ms ease, border-color 120ms ease;
-    align-self: flex-start;
+    flex-shrink: 0;
+    position: relative;
+    top: 3px;
   }
-  .cta:hover { color: var(--a-info-focus); border-color: var(--a-info-focus); }
-  .season { color: var(--fg-secondary); font-style: italic; margin-top: var(--sp-md); }
+  .points strong { font-weight: 600; color: var(--fg-primary-focus); }
+  form.signup {
+    display: flex;
+    gap: var(--sp-sm);
+    flex-wrap: wrap;
+    margin-bottom: var(--sp-sm);
+  }
+  .signup input[type=email] {
+    flex: 1;
+    min-width: 220px;
+    background: var(--bg-secondary);
+    border: 1px solid #E4E4E4;
+    border-radius: var(--r-sm);
+    padding: var(--sp-md);
+    font-family: inherit;
+    font-size: 18px;
+    color: var(--fg-primary);
+  }
+  .signup input[type=email]:focus { outline: none; border-color: var(--a-info); }
+  .signup button {
+    background: var(--a-info);
+    border: none;
+    border-radius: var(--r-sm);
+    color: #FFFFFF;
+    padding: var(--sp-md) var(--sp-lg);
+    font-family: inherit;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 120ms ease;
+  }
+  .signup button:hover { background: var(--a-info-focus); }
+  .signup-note { color: var(--fg-secondary); font-size: 16px; margin-bottom: var(--sp-md); }
+  .season { color: var(--fg-secondary); font-style: italic; }
   footer {
     padding: var(--sp-lg);
     text-align: center;
@@ -116,18 +135,33 @@
 <body>
 <main>
   <div class="mark">focal<span class="dot">.</span></div>
-  <h1>Your camera deserves better than the shelf.</h1>
-  <p class="sub">Focal is a gamified learning app for people with real cameras — five minutes a day, phone in hand, camera anywhere. Come back to it actually knowing what the dials do.</p>
+  <h1>Duolingo for photography.</h1>
+  <p class="sub">Five-minute gamified lessons that teach you your real camera — aperture, shutter, light, and the eye to use them — no camera in hand required.</p>
   <ul class="points">
-    <li><strong>Learn by doing, not reading.</strong> Interactive lessons where you feel aperture, shutter, and light before anyone explains them.</li>
-    <li><strong>Games are the test.</strong> Every lesson ends in a mini-game that measures what stuck — and the app adapts to what didn't.</li>
-    <li><strong>Built on your camera.</strong> Tell Focal what gear you own and lessons speak its language, dial for dial.</li>
+    <li><i class="ph ph-sliders-horizontal"></i><span><strong>Learn by doing, not reading.</strong> Interactive lessons where you feel aperture, shutter, and light before anyone explains them.</span></li>
+    <li><i class="ph ph-game-controller"></i><span><strong>Games are the test.</strong> Every lesson ends in a mini-game that measures what stuck — and the app adapts to what didn't.</span></li>
+    <li><i class="ph ph-camera"></i><span><strong>Built on your camera.</strong> Tell Focal what gear you own and lessons speak its language, dial for dial.</span></li>
   </ul>
-  <a class="cta" href="mailto:hello@focalhq.io?subject=Keep%20me%20posted">Get launch updates &rarr;</a>
+  <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
+    <input type="hidden" name="_subject" value="Focal launch list signup">
+    <input type="hidden" name="_next" value="https://focalhq.io/?thanks=1">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
+    <button type="submit">Get launch updates</button>
+  </form>
+  <p class="signup-note" id="signup-note">One email when we launch, maybe two before. No spam, ever.</p>
   <p class="season">Coming this winter.</p>
 </main>
 <footer>
   <span>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></span>
 </footer>
+<script>
+  if (new URLSearchParams(location.search).has('thanks')) {
+    var n = document.getElementById('signup-note');
+    n.textContent = "You're on the list. Talk soon.";
+    n.style.color = 'var(--a-success)';
+    document.querySelector('form.signup').style.display = 'none';
+  }
+</script>
 </body>
 </html>
