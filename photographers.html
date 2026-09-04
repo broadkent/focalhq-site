@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Focal - Duolingo for photography</title>
-<meta name="description" content="Focal is Duolingo for photography: five-minute gamified lessons that actually teach you photography.">
+<title>Focal for photographers</title>
+<meta name="description" content="Focal teaches photography with real photographs. The photographers behind them get credit, a link back, and a way to get paid.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,6 +50,7 @@
     color: var(--fg-primary-focus);
     margin-bottom: var(--sp-xxl);
   }
+  .mark a { color: inherit; text-decoration: none; }
   .mark .dot { color: var(--fg-primary-focus); }
   .mark i { font-size: 24px; margin-right: var(--sp-sm); position: relative; top: 3px; /* optical baseline alignment — icon glyphs don't sit on the text baseline (Kent, 09-04) */ }
   h1 {
@@ -137,27 +138,27 @@
 </head>
 <body>
 <main>
-  <div class="mark"><i class="ph-duotone ph-aperture"></i>focal<span class="dot">.</span></div>
-  <h1>Duolingo for photography.</h1>
-  <p class="sub">Five-minute gamified lessons that actually teach you photography: aperture, shutter, light, and the eye to use them.</p>
+  <div class="mark"><a href="/"><i class="ph-duotone ph-aperture"></i>focal<span class="dot">.</span></a></div>
+  <h1>Built with photographers.</h1>
+  <p class="sub">Focal teaches photography with real photographs. We believe the photographers behind them should get the credit, the audience, and a way to get paid.</p>
   <ul class="points">
-    <li><i class="ph-duotone ph-sliders-horizontal"></i><span><strong>Learn by doing, not reading.</strong><br>Interactive lessons where you slide the aperture, freeze the motion, and shape the light yourself.</span></li>
-    <li><i class="ph-duotone ph-lightning"></i><span><strong>Five minutes, actually fun.</strong><br>Quick, playful sessions that fit anywhere in your day.</span></li>
-    <li><i class="ph-duotone ph-path"></i><span><strong>It learns you back.</strong><br>Focal finds what you know and teaches what you don't. A path built just for you.</span></li>
+    <li><i class="ph-duotone ph-images"></i><span><strong>Your photos, teaching.</strong><br>Submit your work and we use it to teach real principles &mdash; light, composition, timing &mdash; inside lessons and games. Every appearance carries your name and links back to you, so people who love a photo can find the person who made it.</span></li>
+    <li><i class="ph-duotone ph-medal"></i><span><strong>Credit, always. Respect, always.</strong><br>Your work is never shown as a &ldquo;what not to do.&rdquo; Negative examples come from stock and staged images &mdash; never from a real photographer&rsquo;s submission. Your photos appear where they shine.</span></li>
+    <li><i class="ph-duotone ph-hand-coins"></i><span><strong>Get paid to grow the craft.</strong><br>Photographers should be paid for their work. That&rsquo;s why Focal has a team program: anyone can join and get a referral code. Your code gives new members a discount on the paid plan &mdash; and you earn a monthly share for as long as your referral stays. Real, recurring support for your photography journey.</span></li>
+    <li><i class="ph-duotone ph-users-three"></i><span><strong>Open to everyone.</strong><br>You don&rsquo;t need a following or a portfolio review. If you care about photography and want to help more people learn it, you belong on the team. Full program details when we launch.</span></li>
   </ul>
   <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
-    <input type="hidden" name="_subject" value="Focal launch list signup">
-    <input type="hidden" name="_next" value="https://focalhq.io/?thanks=1">
+    <input type="hidden" name="_subject" value="Focal photographer list signup">
+    <input type="hidden" name="_next" value="https://focalhq.io/photographers?thanks=1">
     <input type="hidden" name="_captcha" value="false">
     <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
-    <button type="submit">Get launch updates</button>
+    <button type="submit">Join the photographer list</button>
   </form>
-  <p class="signup-note" id="signup-note">One email when we launch, maybe two before. No spam, ever.</p>
+  <p class="signup-note" id="signup-note">First to hear when submissions and the team program open. No spam, ever.</p>
   <p class="season">Coming this winter.</p>
 </main>
 <footer>
-  <span><a href="/photographers">For photographers</a> &middot; &copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></span>
-  <br><span>Duolingo is a trademark of Duolingo, Inc. Focal is not affiliated with or endorsed by Duolingo.</span>
+  <span>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></span>
 </footer>
 <script>
   if (new URLSearchParams(location.search).has('thanks')) {
