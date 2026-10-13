@@ -8,11 +8,10 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400&display=swap" rel="stylesheet">
 <style>
-  /* InkUI light tokens (packages/ink/lib/theme/tokens.dart) — deliberately light-only (Kent, 09-04) */
-  /* Content page: non-purpose tokens only — no accent (a_*) tokens here; those are for in-app events (Kent, 09-04) */
+  /* InkUI light tokens (packages/ink/lib/theme/tokens.dart), deliberately light-only (Kent, 09-04) */
+  /* Content page: non-purpose tokens only, no accent (a_*) tokens here (Kent, 09-04) */
   :root {
     --bg-primary: #F5F5F5;
     --bg-secondary: #FFFFFF;
@@ -28,6 +27,7 @@
     background: var(--bg-primary);
     color: var(--fg-primary);
     font-family: 'Spectral', Georgia, serif;
+    font-synthesis: weight style; /* InkUI bundles Spectral Regular only; bold and italic are synthesized, as in the app */
     font-size: 18px;
     line-height: 1.6;
     min-height: 100vh;
@@ -44,14 +44,15 @@
     flex-direction: column;
     justify-content: center;
   }
+  p, li { text-wrap: pretty; }
+  a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
+  a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: 0.12em; }
   .mark {
     font-size: 22px;
     font-weight: 700; /* titleSmall */
     color: var(--fg-primary-focus);
     margin-bottom: var(--sp-xxl);
   }
-  .mark .dot { color: var(--fg-primary-focus); }
-  .mark i { font-size: 24px; margin-right: var(--sp-sm); position: relative; top: 3px; /* optical baseline alignment — icon glyphs don't sit on the text baseline (Kent, 09-04) */ }
   .mark svg { height: 20px; width: auto; margin-right: var(--sp-sm); position: relative; top: 2px; }
   h1 {
     text-wrap: balance;
@@ -62,7 +63,6 @@
     margin-bottom: var(--sp-lg);
   }
   .sub {
-    text-wrap: pretty;
     font-size: 18px;
     font-weight: 400; /* bodyMedium */
     margin-bottom: var(--sp-xl);
@@ -72,42 +72,32 @@
     list-style: none;
     margin-bottom: var(--sp-xl);
   }
-  .points span { text-wrap: pretty; }
   .points li {
-    display: flex;
-    align-items: baseline;
-    gap: var(--sp-md);
-    padding: var(--sp-lg) 0;
+    padding: var(--sp-md) 0;
     font-size: 18px;
-  }
-  .points li + li::before { content: none; }
-  .points li:not(:first-child) { border-top: var(--stroke) solid var(--fg-secondary); }
-  .points i {
-    font-size: 24px;
-    color: var(--fg-primary);
-    flex-shrink: 0;
-    position: relative;
-    top: 3px; /* optical baseline alignment — icon glyphs don't sit on the text baseline (Kent, 09-04) */
   }
   .points strong { font-weight: 600; color: var(--fg-primary-focus); }
   form.signup {
     display: flex;
-    gap: var(--sp-sm);
+    gap: var(--sp-md);
     flex-wrap: wrap;
+    align-items: flex-end;
     margin-bottom: var(--sp-sm);
   }
   .signup input[type=email] {
     flex: 1;
     min-width: 220px;
-    background: var(--bg-secondary);
-    border: var(--stroke) solid var(--fg-secondary);
-    border-radius: var(--r-sm);
-    padding: var(--sp-md);
+    background: transparent;
+    border: none;
+    border-bottom: var(--stroke) solid var(--fg-secondary);
+    border-radius: 0;
+    padding: var(--sp-sm) 0;
     font-family: inherit;
     font-size: 18px;
     color: var(--fg-primary);
   }
-  .signup input[type=email]:focus { outline: none; border-color: var(--fg-primary-focus); }
+  .signup input[type=email]::placeholder { color: var(--fg-secondary); opacity: 1; }
+  .signup input[type=email]:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
   .signup button {
     font-weight: 600; /* labelLarge */
     background: var(--fg-primary);
@@ -118,41 +108,18 @@
     font-family: inherit;
     font-size: 18px;
     cursor: pointer;
-    transition: background 150ms ease-in-out;
   }
-  .signup button:hover { background: var(--fg-primary-focus); }
-  .signup-note { color: var(--fg-secondary); font-size: 16px; margin-bottom: var(--sp-md); }
-  .photog-cta {
-    display: flex;
-    align-items: baseline;
-    gap: var(--sp-md);
-    background: var(--bg-secondary);
-    border: var(--stroke) solid var(--fg-secondary);
-    border-radius: var(--r-sm);
-    padding: var(--sp-md) var(--sp-lg);
-    margin-bottom: var(--sp-xl);
-    color: var(--fg-primary);
-    text-decoration: none;
-    transition: border-color 150ms ease-in-out;
-  }
-  .photog-cta:hover { border-color: var(--fg-primary-focus); }
-  .photog-cta strong { font-weight: 600; color: var(--fg-primary-focus); }
-  .photog-cta i {
-    font-size: 24px;
-    color: var(--fg-primary);
-    flex-shrink: 0;
-    position: relative;
-    top: 3px; /* optical baseline alignment — icon glyphs don't sit on the text baseline (Kent, 09-04) */
-  }
-  .photog-cta .arrow { margin-left: auto; }
-  .season { color: var(--fg-secondary); font-style: italic; }
+  .signup button:hover, .signup button:focus-visible { outline: none; background: var(--fg-primary-focus); }
+  .signup-note { color: var(--fg-secondary); font-size: 16px; margin-bottom: var(--sp-xl); }
+  .season { margin-bottom: var(--sp-lg); }
+  .photog strong { font-weight: 600; color: var(--fg-primary-focus); }
   footer {
     padding: var(--sp-lg);
     text-align: center;
     color: var(--fg-secondary);
     font-size: 16px;
   }
-  footer a { color: var(--fg-secondary); }
+  footer a:focus-visible { color: var(--fg-primary-focus); }
   @media (max-width: 480px) {
     h1 { font-size: 28px; }
     main { padding: var(--sp-xl) var(--sp-md); }
@@ -165,9 +132,9 @@
   <h1>Like Duolingo, but for photography.</h1>
   <p class="sub">Five-minute gamified lessons that actually teach you photography: aperture, shutter, light, and the eye to use them.</p>
   <ul class="points">
-    <li><i class="ph-duotone ph-sliders-horizontal"></i><span><strong>Learn by doing.</strong><br>Interactive lessons where you slide the aperture, freeze the motion, and shape the light yourself.</span></li>
-    <li><i class="ph-duotone ph-lightning"></i><span><strong>Five minutes, actually fun.</strong><br>Quick, playful sessions that fit anywhere in your day.</span></li>
-    <li><i class="ph-duotone ph-path"></i><span><strong>It learns you back.</strong><br>Focal finds what you know and teaches what you don't. A path built just for you.</span></li>
+    <li><strong>Learn by doing.</strong><br>Interactive lessons where you slide the aperture, freeze the motion, and shape the light yourself.</li>
+    <li><strong>Five minutes, actually fun.</strong><br>Quick, playful sessions that fit anywhere in your day.</li>
+    <li><strong>It learns you back.</strong><br>Focal finds what you know and teaches what you don't. A path built just for you.</li>
   </ul>
   <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
     <input type="hidden" name="_subject" value="Focal launch list signup">
@@ -177,12 +144,8 @@
     <button type="submit">Get launch updates</button>
   </form>
   <p class="signup-note" id="signup-note">One email when we launch, maybe two before. No spam, ever.</p>
-  <a class="photog-cta" href="/photographers">
-    <i class="ph-duotone ph-camera"></i>
-    <span><strong>Photographers:</strong> teach with your work. Get credit. Get paid.</span>
-    <i class="ph-duotone ph-arrow-right arrow"></i>
-  </a>
   <p class="season">Coming this winter.</p>
+  <p class="photog"><a href="/photographers"><strong>Photographers:</strong></a> teach with your work. Get credit. Get paid.</p>
 </main>
 <footer>
   <span><a href="/photographers">For photographers</a> &middot; &copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></span>
