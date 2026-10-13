@@ -37,7 +37,7 @@
   main {
     flex: 1;
     width: 100%;
-    max-width: 720px;
+    max-width: calc(34em + 2 * var(--sp-lg));
     margin: 0 auto;
     padding: var(--sp-xxl) var(--sp-lg);
     display: flex;
@@ -46,7 +46,7 @@
   }
   p, li { text-wrap: pretty; }
   a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
-  a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: 0.12em; }
+  a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); }
   .mark {
     font-size: 22px;
     font-weight: 700; /* titleSmall */
@@ -66,16 +66,17 @@
     font-size: 18px;
     font-weight: 400; /* bodyMedium */
     margin-bottom: var(--sp-xl);
-    max-width: 34em;
   }
+  .sub:has(+ .sub) { margin-bottom: var(--sp-md); }
   .points {
     list-style: none;
     margin-bottom: var(--sp-xl);
   }
   .points li {
-    padding: var(--sp-md) 0;
+    padding: 0;
     font-size: 18px;
   }
+  .points li + li { margin-top: var(--sp-lg); }
   .points strong { font-weight: 600; color: var(--fg-primary-focus); }
   form.signup {
     display: flex;
@@ -92,6 +93,9 @@
     border-bottom: var(--stroke) solid var(--fg-secondary);
     border-radius: 0;
     padding: var(--sp-sm) 0;
+    line-height: 1.6;
+    -webkit-appearance: none;
+    appearance: none;
     font-family: inherit;
     font-size: 18px;
     color: var(--fg-primary);
@@ -104,15 +108,19 @@
     border: none;
     border-radius: var(--r-sm);
     color: var(--fg-tertiary-focus);
-    padding: var(--sp-md) var(--sp-lg);
+    padding: var(--sp-sm) var(--sp-lg) calc(var(--sp-sm) + var(--stroke));
+    line-height: 1.6;
+    -webkit-appearance: none;
+    appearance: none;
     font-family: inherit;
     font-size: 18px;
     cursor: pointer;
   }
   .signup button:hover, .signup button:focus-visible { outline: none; background: var(--fg-primary-focus); }
+  .signup button:focus-visible { text-decoration: underline; text-decoration-thickness: 0.12em; text-underline-offset: 0.2em; }
+  .signup input:-webkit-autofill { -webkit-text-fill-color: var(--fg-primary); transition: background-color 0s 600000s; }
   .signup-note { color: var(--fg-secondary); font-size: 16px; margin-bottom: var(--sp-xl); }
   .season { margin-bottom: var(--sp-lg); }
-  .photog strong { font-weight: 600; color: var(--fg-primary-focus); }
   footer {
     padding: var(--sp-lg);
     text-align: center;
@@ -128,14 +136,15 @@
 </head>
 <body>
 <main>
-  <div class="mark"><svg viewBox="0 0 184 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M52 61a40 40 0 0 0 80 0Z" fill="currentColor" opacity="0.2"/><g stroke="currentColor" stroke-width="14" fill="none"><circle cx="92" cy="61" r="47"/><line x1="15" y1="61" x2="169" y2="61" stroke-linecap="round"/></g></svg>focal<span class="dot">.</span></div>
+  <div class="mark"><svg viewBox="0 0 184 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M52 61a40 40 0 0 0 80 0Z" fill="currentColor" opacity="0.2"/><g stroke="currentColor" stroke-width="14" fill="none"><circle cx="92" cy="61" r="47"/><line x1="15" y1="61" x2="169" y2="61" stroke-linecap="round"/></g></svg>focal.</div>
   <h1>Like Duolingo, but for photography.</h1>
   <p class="sub">Five-minute gamified lessons that actually teach you photography: aperture, shutter, light, and the eye to use them.</p>
   <ul class="points">
     <li><strong>Learn by doing.</strong><br>Interactive lessons where you slide the aperture, freeze the motion, and shape the light yourself.</li>
     <li><strong>Five minutes, actually fun.</strong><br>Quick, playful sessions that fit anywhere in your day.</li>
-    <li><strong>It learns you back.</strong><br>Focal finds what you know and teaches what you don't. A path built just for you.</li>
+    <li><strong>It learns you back.</strong><br>Focal finds what you know and teaches what you don&rsquo;t. A path built just for you.</li>
   </ul>
+  <p class="season">Coming this winter.</p>
   <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
     <input type="hidden" name="_subject" value="Focal launch list signup">
     <input type="hidden" name="_next" value="https://focalhq.io/?thanks=1">
@@ -144,8 +153,7 @@
     <button type="submit">Get launch updates</button>
   </form>
   <p class="signup-note" id="signup-note">One email when we launch, maybe two before. No spam, ever.</p>
-  <p class="season">Coming this winter.</p>
-  <p class="photog"><a href="/photographers"><strong>Photographers:</strong></a> teach with your work. Get credit. Get paid.</p>
+  <p class="photog"><a href="/photographers">Photographers:</a> teach with your work. Get credit. Get paid.</p>
 </main>
 <footer>
   <span><a href="/photographers">For photographers</a> &middot; &copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></span>
@@ -154,8 +162,9 @@
 <script>
   if (new URLSearchParams(location.search).has('thanks')) {
     var n = document.getElementById('signup-note');
-    n.textContent = "You're on the list. Talk soon.";
+    n.textContent = "You’re on the list. Talk soon.";
     n.style.color = 'var(--fg-primary)';
+    n.style.fontSize = '18px';
     document.querySelector('form.signup').style.display = 'none';
   }
 </script>
