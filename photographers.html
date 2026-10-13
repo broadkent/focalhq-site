@@ -46,7 +46,7 @@
   }
   p, li { text-wrap: pretty; }
   a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
-  a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); }
+  a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
   .mark {
     font-size: 22px;
     font-weight: 700; /* titleSmall */
@@ -54,7 +54,7 @@
     margin-bottom: var(--sp-xxl);
   }
   .mark a { text-decoration: none; }
-  .mark a:focus-visible { text-decoration: underline; text-decoration-thickness: var(--stroke); text-underline-offset: 0.2em; }
+  .mark a:focus-visible { text-decoration: underline; text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; text-underline-offset: 0.2em; }
   .mark svg { height: 20px; width: auto; margin-right: var(--sp-sm); position: relative; top: 2px; }
   h1 {
     text-wrap: balance;
