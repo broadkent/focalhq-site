@@ -44,53 +44,33 @@
     flex-direction: column;
     justify-content: center;
   }
-  p, li { text-wrap: pretty; }
+  main > * + * { margin-top: var(--sp-lg); }
+  p { text-wrap: pretty; }
   a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
   a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
   .mark {
     font-size: 22px;
     font-weight: 700; /* titleSmall */
     color: var(--fg-primary-focus);
-    margin-bottom: var(--sp-xxl);
   }
   .mark a { text-decoration: none; }
   .mark a:focus-visible { text-decoration: underline; text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; text-underline-offset: 0.2em; }
-  .mark svg { height: 20px; width: auto; margin-right: var(--sp-sm); position: relative; top: 2px; }
+  .mark + h1 { margin-top: var(--sp-xxl); }
   h1 {
     text-wrap: balance;
-    font-size: 36px;
+    font-size: 28px;
     font-weight: 700; /* titleLarge */
     line-height: 1.25;
     color: var(--fg-primary-focus);
-    margin-bottom: var(--sp-lg);
   }
-  .sub {
-    font-size: 18px;
-    font-weight: 400; /* bodyMedium */
-    margin-bottom: var(--sp-xl);
-  }
-  .sub:has(+ .sub) { margin-bottom: var(--sp-md); }
-  .sub strong { font-weight: 600; }
-  .points {
-    list-style: none;
-    margin-bottom: var(--sp-xl);
-  }
-  .points li {
-    padding: 0;
-    font-size: 18px;
-  }
-  .points li + li { margin-top: var(--sp-lg); }
-  .points strong { font-weight: 600; color: var(--fg-primary-focus); }
+  strong { font-weight: 600; }
+  .point strong, .sub strong { color: var(--fg-primary-focus); }
   form.signup {
     display: flex;
-    gap: var(--sp-md);
     flex-wrap: wrap;
     align-items: flex-end;
-    margin-bottom: var(--sp-sm);
   }
-  .signup input[type=email] {
-    flex: 1;
-    min-width: 220px;
+  .signup input[type=email], .signup button {
     background: transparent;
     border: none;
     border-bottom: var(--stroke) solid var(--fg-secondary);
@@ -101,29 +81,21 @@
     appearance: none;
     font-family: inherit;
     font-size: 18px;
-    color: var(--fg-primary);
   }
+  .signup input[type=email] { flex: 1; min-width: 220px; color: var(--fg-primary); }
   .signup input[type=email]::placeholder { color: var(--fg-secondary); opacity: 1; }
   .signup input[type=email]:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
   .signup button {
     font-weight: 600; /* labelLarge */
-    background: var(--fg-primary);
-    border: none;
-    border-radius: var(--r-sm);
-    color: var(--fg-tertiary-focus);
-    padding: var(--sp-sm) var(--sp-lg) calc(var(--sp-sm) + var(--stroke));
-    line-height: 1.6;
-    -webkit-appearance: none;
-    appearance: none;
-    font-family: inherit;
-    font-size: 18px;
+    color: var(--fg-primary-focus);
+    padding-left: var(--sp-md);
     cursor: pointer;
   }
-  .signup button:hover, .signup button:focus-visible { outline: none; background: var(--fg-primary-focus); }
-  .signup button:focus-visible { text-decoration: underline; text-decoration-thickness: 0.12em; text-underline-offset: 0.2em; }
+  .signup button:hover { border-bottom-color: var(--fg-primary-focus); }
+  .signup button:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); text-decoration: underline; text-decoration-thickness: 0.12em; text-underline-offset: 0.2em; }
   .signup input:-webkit-autofill { -webkit-text-fill-color: var(--fg-primary); transition: background-color 0s 600000s; }
-  .signup-note { color: var(--fg-secondary); font-size: 16px; margin-bottom: var(--sp-xl); }
-  .season { margin-bottom: var(--sp-lg); }
+  .signup-note { color: var(--fg-secondary); font-size: 16px; margin-top: var(--sp-sm); }
+  main > .signup-note + * { margin-top: var(--sp-lg); }
   footer {
     padding: var(--sp-lg);
     text-align: center;
@@ -132,23 +104,21 @@
   }
   footer a:focus-visible { color: var(--fg-primary-focus); }
   @media (max-width: 480px) {
-    h1 { font-size: 28px; }
     main { padding: var(--sp-xl) var(--sp-md); }
-  }
-</style>
+    .signup button { flex-basis: 100%; text-align: left; padding: var(--sp-sm) 0; border-bottom: none; text-decoration: underline; text-decoration-thickness: 0.08em; text-underline-offset: 0.2em; }
+    .signup button:hover, .signup button:focus-visible { text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
+  }</style>
 </head>
 <body>
 <main>
-  <div class="mark"><a href="/"><svg viewBox="0 0 184 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M52 61a40 40 0 0 0 80 0Z" fill="currentColor" opacity="0.2"/><g stroke="currentColor" stroke-width="14" fill="none"><circle cx="92" cy="61" r="47"/><line x1="15" y1="61" x2="169" y2="61" stroke-linecap="round"/></g></svg>focal.</a></div>
+  <div class="mark"><a href="/">focal.</a></div>
   <h1>Built with photographers.</h1>
   <p class="sub">Every <strong>inspiration</strong> and every example of <strong>excellence</strong> in Focal is a real photo by a working photographer, credited and linked to your portfolio. Generated and stock images only isolate concepts and show the don&rsquo;ts.</p>
   <p class="sub">The team program goes further: a monthly share for every member your code brings in.</p>
-  <ul class="points">
-    <li><strong>Your photos, teaching.</strong><br>Share your work and it becomes the inspiration and applied example inside lessons and games. Every appearance carries your name and a link, so people who love a photo can find you.</li>
-    <li><strong>Credit, always. Respect, always.</strong><br>Your work is never a &ldquo;what not to do.&rdquo; The don&rsquo;ts come from generated images, never your submission. Your photos appear where they shine.</li>
-    <li><strong>Get paid to grow the craft.</strong><br>Join the team, get a referral code. Your code discounts the paid plan for new members, and you earn a monthly share for as long as they stay. Recurring support for your photography journey.</li>
-    <li><strong>Open to everyone.</strong><br>No following or portfolio review required. If you care about photography, you belong. Full details at launch.</li>
-  </ul>
+  <p class="point"><strong>Your photos, teaching.</strong> Share your work and it becomes the inspiration and applied example inside lessons and games. Every appearance carries your name and a link, so people who love a photo can find you.</p>
+  <p class="point"><strong>Credit, always. Respect, always.</strong> Your work is never a &ldquo;what not to do.&rdquo; The don&rsquo;ts come from generated images, never your submission. Your photos appear where they shine.</p>
+  <p class="point"><strong>Get paid to grow the craft.</strong> Join the team, get a referral code. Your code discounts the paid plan for new members, and you earn a monthly share for as long as they stay. Recurring support for your photography journey.</p>
+  <p class="point"><strong>Open to everyone.</strong> No following or portfolio review required. If you care about photography, you belong. Full details at launch.</p>
   <p class="season">Coming this winter.</p>
   <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
     <input type="hidden" name="_subject" value="Focal photographer list signup">
@@ -160,7 +130,7 @@
   <p class="signup-note" id="signup-note">First to hear when submissions and the team program open. No spam, ever.</p>
 </main>
 <footer>
-  <span>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></span>
+  <p>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></p>
 </footer>
 <script>
   if (new URLSearchParams(location.search).has('thanks')) {
