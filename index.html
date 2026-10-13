@@ -49,7 +49,7 @@
   a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
   a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
   .mark {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700; /* titleSmall */
     color: var(--fg-primary-focus);
   }
@@ -90,13 +90,15 @@
     cursor: pointer;
   }
   .signup button:hover { border-bottom-color: var(--fg-primary-focus); }
-  .signup button:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); text-decoration: underline; text-decoration-thickness: 0.12em; text-underline-offset: 0.2em; }
+  .signup button:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
   .signup input:-webkit-autofill { -webkit-text-fill-color: var(--fg-primary); transition: background-color 0s 600000s; }
   .signup-note { color: var(--fg-secondary); font-size: 16px; margin-top: var(--sp-sm); }
-  main > .signup-note + * { margin-top: var(--sp-lg); }
   footer {
+    width: 100%;
+    max-width: calc(34em + 2 * var(--sp-lg));
+    margin: 0 auto;
     padding: var(--sp-lg);
-    text-align: center;
+    text-align: left;
     color: var(--fg-secondary);
     font-size: 16px;
   }
@@ -113,8 +115,7 @@
   <h1>Like Duolingo, but for photography.</h1>
   <p class="sub">Five-minute lessons that actually teach you photography.</p>
   <p class="point"><strong>Learn by doing.</strong> Slide the aperture, freeze the motion, shape the light.</p>
-  <p class="point"><strong>Five minutes, actually fun.</strong></p>
-  <p class="point"><strong>It learns you back.</strong> A path built from what you know and what you don&rsquo;t.</p>
+  <p class="point"><strong>It learns you back.</strong> A path from what you know to what you don&rsquo;t.</p>
   <p class="season">Coming this winter.</p>
   <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
     <input type="hidden" name="_subject" value="Focal launch list signup">
@@ -123,7 +124,7 @@
     <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
     <button type="submit">Get launch updates</button>
   </form>
-  <p class="signup-note" id="signup-note">One email when we launch. No spam.</p>
+  <p class="signup-note" id="signup-note">One email when we launch.</p>
   <p class="photog"><a href="/photographers">Photographers:</a> teach with your work. Get credit. Get paid.</p>
 </main>
 <footer>
