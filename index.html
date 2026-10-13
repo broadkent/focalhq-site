@@ -48,7 +48,7 @@
   .sub + .point { margin-top: var(--sp-lg); }
   .point + .point { margin-top: var(--sp-md); }
   .point + .signup { margin-top: var(--sp-xxl); }
-  .signup + .signup-note { margin-top: var(--sp-xs); }
+  .signup + .signup-note { margin-top: var(--sp-sm); }
   .signup-note + .photog { margin-top: var(--sp-xl); }
   p { text-wrap: pretty; }
   a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
@@ -130,7 +130,7 @@
     <button type="submit">Get launch updates</button>
   </form>
   <p class="signup-note" id="signup-note">Coming this winter. One email when we launch.</p>
-  <p class="photog"><a href="/photographers">Photographers:</a> teach with your work. Get credit. Get paid.</p>
+  <p class="photog"><a href="/photographers">Photographers:</a> teach with your work. Get&nbsp;credit. Get&nbsp;paid.</p>
 </main>
 <footer>
   <p>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a> &middot; Duolingo is a trademark of Duolingo, Inc. Focal is not affiliated with or endorsed by Duolingo.</p>
@@ -141,6 +141,7 @@
     n.textContent = "You’re on the list. Talk soon.";
     n.style.color = 'var(--fg-primary)';
     n.style.fontSize = '18px';
+    n.style.marginTop = 'var(--sp-xxl)';
     document.querySelector('form.signup').style.display = 'none';
   }
 </script>

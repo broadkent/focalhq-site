@@ -48,7 +48,7 @@
   .sub + .point { margin-top: var(--sp-lg); }
   .point + .point { margin-top: var(--sp-md); }
   .point + .signup { margin-top: var(--sp-xxl); }
-  .signup + .signup-note { margin-top: var(--sp-xs); }
+  .signup + .signup-note { margin-top: var(--sp-sm); }
   .signup-note + .photog { margin-top: var(--sp-xl); }
   p { text-wrap: pretty; }
   a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
@@ -130,7 +130,7 @@
     <input type="hidden" name="_next" value="https://focalhq.io/photographers?thanks=1">
     <input type="hidden" name="_captcha" value="false">
     <input type="email" name="email" placeholder="Email" required aria-label="Email address">
-    <button type="submit">Join the photographer list</button>
+    <button type="submit">Join the list</button>
   </form>
   <p class="signup-note" id="signup-note">Coming this winter. First to hear when submissions open.</p>
 </main>
@@ -143,6 +143,7 @@
     n.textContent = "You’re on the list. Talk soon.";
     n.style.color = 'var(--fg-primary)';
     n.style.fontSize = '18px';
+    n.style.marginTop = 'var(--sp-xxl)';
     document.querySelector('form.signup').style.display = 'none';
   }
 </script>
