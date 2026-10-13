@@ -44,7 +44,12 @@
     flex-direction: column;
     justify-content: center;
   }
-  main > * + * { margin-top: var(--sp-lg); }
+  .sub { margin-top: var(--sp-md); text-wrap: balance; }
+  .sub + .point { margin-top: var(--sp-lg); }
+  .point + .point { margin-top: var(--sp-md); }
+  .point + .signup { margin-top: var(--sp-xxl); }
+  .signup + .signup-note { margin-top: var(--sp-xs); }
+  .signup-note + .photog { margin-top: var(--sp-xl); }
   p { text-wrap: pretty; }
   a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
   a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
@@ -54,7 +59,7 @@
     color: var(--fg-primary-focus);
   }
   .mark svg { height: 20px; width: auto; margin-right: var(--sp-sm); position: relative; top: 2px; }
-  .mark + h1 { margin-top: var(--sp-xxl); }
+  h1 { margin-top: var(--sp-xxl); }
   h1 {
     text-wrap: balance;
     font-size: 28px;
@@ -66,7 +71,6 @@
   .point strong, .sub strong { color: var(--fg-primary-focus); }
   form.signup {
     display: flex;
-    flex-wrap: wrap;
     align-items: flex-end;
   }
   .signup input[type=email], .signup button {
@@ -81,19 +85,21 @@
     font-family: inherit;
     font-size: 18px;
   }
-  .signup input[type=email] { flex: 1; min-width: 220px; color: var(--fg-primary); }
+  .signup input[type=email] { flex: 1 1 0; min-width: 0; color: var(--fg-primary); }
   .signup input[type=email]::placeholder { color: var(--fg-secondary); opacity: 1; }
   .signup input[type=email]:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
   .signup button {
     font-weight: 600; /* labelLarge */
     color: var(--fg-primary-focus);
     padding-left: var(--sp-md);
+    white-space: nowrap;
+    flex: 0 0 auto;
     cursor: pointer;
   }
   .signup button:hover { border-bottom-color: var(--fg-primary-focus); }
   .signup button:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
   .signup input:-webkit-autofill { -webkit-text-fill-color: var(--fg-primary); transition: background-color 0s 600000s; }
-  .signup-note { color: var(--fg-secondary); font-size: 16px; margin-top: var(--sp-sm); }
+  .signup-note { color: var(--fg-primary); font-size: 16px; }
   footer {
     width: 100%;
     max-width: calc(34 * 18px + 2 * var(--sp-lg)); /* same measure as main, whose em is 18px */
@@ -107,8 +113,6 @@
   @media (max-width: 480px) {
     footer { padding: var(--sp-lg) var(--sp-md); }
     main { padding: var(--sp-xl) var(--sp-md); }
-    .signup button { flex-basis: 100%; text-align: left; padding: var(--sp-sm) 0; border-bottom: none; text-decoration: underline; text-decoration-thickness: 0.08em; text-underline-offset: 0.2em; }
-    .signup button:hover, .signup button:focus-visible { text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
   }</style>
 </head>
 <body>
@@ -118,15 +122,14 @@
   <p class="sub">Five-minute lessons that actually teach you photography.</p>
   <p class="point"><strong>Learn by doing.</strong> Slide the aperture, freeze the motion, shape the light.</p>
   <p class="point"><strong>It learns you back.</strong> A path from what you know to what you don&rsquo;t.</p>
-  <p class="season">Coming this winter.</p>
   <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
     <input type="hidden" name="_subject" value="Focal launch list signup">
     <input type="hidden" name="_next" value="https://focalhq.io/?thanks=1">
     <input type="hidden" name="_captcha" value="false">
-    <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
+    <input type="email" name="email" placeholder="Email" required aria-label="Email address">
     <button type="submit">Get launch updates</button>
   </form>
-  <p class="signup-note" id="signup-note">One email when we launch.</p>
+  <p class="signup-note" id="signup-note">Coming this winter. One email when we launch.</p>
   <p class="photog"><a href="/photographers">Photographers:</a> teach with your work. Get credit. Get paid.</p>
 </main>
 <footer>

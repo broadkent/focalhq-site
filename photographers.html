@@ -44,7 +44,12 @@
     flex-direction: column;
     justify-content: center;
   }
-  main > * + * { margin-top: var(--sp-lg); }
+  .sub { margin-top: var(--sp-md); }
+  .sub + .point { margin-top: var(--sp-lg); }
+  .point + .point { margin-top: var(--sp-md); }
+  .point + .signup { margin-top: var(--sp-xxl); }
+  .signup + .signup-note { margin-top: var(--sp-xs); }
+  .signup-note + .photog { margin-top: var(--sp-xl); }
   p { text-wrap: pretty; }
   a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
   a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
@@ -56,7 +61,7 @@
   .mark a { text-decoration: none; }
   .mark a:focus-visible { text-decoration: underline; text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; text-underline-offset: 0.2em; }
   .mark svg { height: 20px; width: auto; margin-right: var(--sp-sm); position: relative; top: 2px; }
-  .mark + h1 { margin-top: var(--sp-xxl); }
+  h1 { margin-top: var(--sp-xxl); }
   h1 {
     text-wrap: balance;
     font-size: 28px;
@@ -68,7 +73,6 @@
   .point strong, .sub strong { color: var(--fg-primary-focus); }
   form.signup {
     display: flex;
-    flex-wrap: wrap;
     align-items: flex-end;
   }
   .signup input[type=email], .signup button {
@@ -83,19 +87,21 @@
     font-family: inherit;
     font-size: 18px;
   }
-  .signup input[type=email] { flex: 1; min-width: 220px; color: var(--fg-primary); }
+  .signup input[type=email] { flex: 1 1 0; min-width: 0; color: var(--fg-primary); }
   .signup input[type=email]::placeholder { color: var(--fg-secondary); opacity: 1; }
   .signup input[type=email]:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
   .signup button {
     font-weight: 600; /* labelLarge */
     color: var(--fg-primary-focus);
     padding-left: var(--sp-md);
+    white-space: nowrap;
+    flex: 0 0 auto;
     cursor: pointer;
   }
   .signup button:hover { border-bottom-color: var(--fg-primary-focus); }
   .signup button:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
   .signup input:-webkit-autofill { -webkit-text-fill-color: var(--fg-primary); transition: background-color 0s 600000s; }
-  .signup-note { color: var(--fg-secondary); font-size: 16px; margin-top: var(--sp-sm); }
+  .signup-note { color: var(--fg-primary); font-size: 16px; }
   footer {
     width: 100%;
     max-width: calc(34 * 18px + 2 * var(--sp-lg)); /* same measure as main, whose em is 18px */
@@ -109,8 +115,6 @@
   @media (max-width: 480px) {
     footer { padding: var(--sp-lg) var(--sp-md); }
     main { padding: var(--sp-xl) var(--sp-md); }
-    .signup button { flex-basis: 100%; text-align: left; padding: var(--sp-sm) 0; border-bottom: none; text-decoration: underline; text-decoration-thickness: 0.08em; text-underline-offset: 0.2em; }
-    .signup button:hover, .signup button:focus-visible { text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
   }</style>
 </head>
 <body>
@@ -121,15 +125,14 @@
   <p class="point"><strong>Credit, always. Respect, always.</strong> Your work is never a &ldquo;what not to do.&rdquo;</p>
   <p class="point"><strong>Get paid to grow the craft.</strong> Get a referral code and earn a monthly share for every member it brings in, for as long as they stay.</p>
   <p class="point"><strong>Open to everyone.</strong> No following or portfolio review required.</p>
-  <p class="season">Coming this winter.</p>
   <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
     <input type="hidden" name="_subject" value="Focal photographer list signup">
     <input type="hidden" name="_next" value="https://focalhq.io/photographers?thanks=1">
     <input type="hidden" name="_captcha" value="false">
-    <input type="email" name="email" placeholder="you@example.com" required aria-label="Email address">
+    <input type="email" name="email" placeholder="Email" required aria-label="Email address">
     <button type="submit">Join the photographer list</button>
   </form>
-  <p class="signup-note" id="signup-note">First to hear when submissions open.</p>
+  <p class="signup-note" id="signup-note">Coming this winter. First to hear when submissions open.</p>
 </main>
 <footer>
   <p>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></p>
