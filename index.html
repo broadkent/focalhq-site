@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Focal - learn photography</title>
 <meta name="description" content="Focal: five-minute gamified lessons that actually teach you photography.">
+<meta name="theme-color" content="#F5F5F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preload" href="assets/Spectral-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.style.backgroundSize=256/devicePixelRatio+'px'</script>
 <style>
   /* InkUI tokens (packages/ink/lib/theme/tokens.dart). Ink and paper are the only black and white:
      ink #121212 on paper #F5F5F5, inverted in dark (Kent, 10-17). Content page: no accent tokens (Kent, 09-04) */
@@ -16,7 +19,7 @@
     src: url(assets/Spectral-Regular.woff2) format('woff2');
     font-weight: 400;
     font-style: normal;
-    font-display: swap;
+    font-display: block;
   }
   :root {
     color-scheme: light dark;
@@ -41,10 +44,8 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html {
-    background: var(--paper) var(--paper-tile) 0 0 / 256px 256px repeat scroll;
+    background: var(--paper) var(--paper-tile) 0 0 / 128px 128px repeat scroll;
   }
-  @media (min-resolution: 2dppx) { html { background-size: 128px 128px; } }
-  @media (min-resolution: 3dppx) { html { background-size: 85.3333px 85.3333px; } }
   body {
     color: var(--fg-primary);
     font-family: 'Spectral', Georgia, serif;
