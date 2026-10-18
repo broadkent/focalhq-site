@@ -4,16 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Focal - learn photography</title>
-<meta name="description" content="Focal: five-minute gamified lessons that actually teach you photography.">
+<meta name="description" content="Focal: five-minute lessons that teach photography.">
 <meta name="theme-color" content="#F5F5F5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preload" href="assets/Spectral-Regular.woff2" as="font" type="font/woff2" crossorigin>
-<script>document.documentElement.style.backgroundSize=256/devicePixelRatio+'px'</script>
 <style>
-  /* InkUI tokens (packages/ink/lib/theme/tokens.dart). Ink and paper are the only black and white:
-     ink #121212 on paper #F5F5F5, inverted in dark (Kent, 10-17). Content page: no accent tokens (Kent, 09-04) */
-  /* Spectral Regular is the only face, as in the app (OFL: assets/Spectral-OFL.txt) */
+  /* Direction C, the editorial print. InkUI tokens (packages/ink/lib/theme/tokens.dart):
+     ink #121212 on paper #F5F5F5, inverted in dark. No borders, cards, shadows or translucency. */
   @font-face {
     font-family: 'Spectral';
     src: url(assets/Spectral-Regular.woff2) format('woff2');
@@ -24,151 +22,339 @@
   :root {
     color-scheme: light dark;
     --paper: #F5F5F5;
-    --paper-tile: url(assets/paper-light.webp);
+    --ink: #121212;
     --fg-primary: #3A3A3A;
-    --fg-primary-focus: #121212;
     --fg-secondary: #6B6B6B;
-    --mark-tint: #C8C8C8; /* ink at 20 percent over paper, pre-blended: no translucency */
-    --r-sm: 8px; --stroke: 4px;
+    --mark-tint: #C8C8C8; /* ink at 20 percent over paper, pre-blended */
+    --stroke: 4px;
     --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px;
+    --column: 640px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --paper: #121212;
-      --paper-tile: url(assets/paper-dark.webp);
+      --ink: #F5F5F5;
       --fg-primary: #E5E5E5;
-      --fg-primary-focus: #F5F5F5;
       --fg-secondary: #A0A0A0;
       --mark-tint: #3F3F3F;
     }
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html {
-    background: var(--paper) var(--paper-tile) 0 0 / 128px 128px repeat scroll;
-  }
+  html { background: var(--paper); }
   body {
+    background: var(--paper);
     color: var(--fg-primary);
     font-family: 'Spectral', Georgia, serif;
-    font-synthesis: none; /* bold is Skia's fake bold, drawn below as a text stroke */
+    font-synthesis: none;
     font-size: 18px;
     line-height: 1.6;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
   }
-  main {
-    flex: 1;
-    width: 100%;
-    max-width: calc(34em + 2 * var(--sp-lg));
+  .page {
+    max-width: calc(1000px + 2 * var(--sp-lg));
     margin: 0 auto;
-    padding: var(--sp-xxl) var(--sp-lg);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    padding: var(--sp-xl) var(--sp-lg) var(--sp-xxl);
   }
-  .sub { margin-top: var(--sp-md); text-wrap: balance; }
-  .sub + .point { margin-top: var(--sp-lg); }
-  .point + .point { margin-top: var(--sp-md); }
-  .point + .signup { margin-top: var(--sp-xxl); }
-  .signup + .signup-note { margin-top: var(--sp-sm); }
-  .signup-note + .photog { margin-top: var(--sp-xl); }
-  p { text-wrap: pretty; }
+  .col { max-width: var(--column); }
   a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
-  a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
-  .mark {
-    font-size: 18px;
-    font-weight: 700; /* titleSmall */
-    color: var(--fg-primary-focus);
-  }
-  .mark svg { -webkit-text-stroke: 0; height: 20px; width: auto; margin-right: var(--sp-sm); position: relative; top: 2px; }
-  h1 { margin-top: var(--sp-xxl); }
+  a:focus-visible { outline: none; color: var(--ink); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
+
+  /* Masthead */
+  .masthead { display: flex; align-items: baseline; justify-content: space-between; max-width: var(--column); color: var(--ink); }
+  .brand { font-size: 18px; font-weight: 700; -webkit-text-stroke: 0.6875px; paint-order: stroke fill; }
+  .brand svg { height: 18px; width: auto; margin-right: var(--sp-sm); position: relative; top: 2px; -webkit-text-stroke: 0; }
+  .season { font-size: 16px; color: var(--fg-secondary); }
+
   h1 {
+    margin-top: calc(var(--sp-xxl) * 2);
+    font-weight: 400;
+    font-size: clamp(36px, 8.4vw, 68px);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    color: var(--ink);
     text-wrap: balance;
-    font-size: 28px;
-    font-weight: 700; /* titleLarge */
-    line-height: 1.25;
-    color: var(--fg-primary-focus);
   }
-  /* Skia fake bold (SkScalerContext): frame width = size x lerp(size, 9..36 -> 1/24..1/32); 18px 0.6875px, 28px 0.9614px */
-  .mark, strong, .signup button { -webkit-text-stroke: 0.6875px; paint-order: stroke fill; }
-  h1 { -webkit-text-stroke: 0.9614px; paint-order: stroke fill; }
-  strong { font-weight: 600; }
-  .point strong, .sub strong { color: var(--fg-primary-focus); }
+
+  /* Sign-up: one underlined field */
   form.signup {
+    margin-top: var(--sp-xxl);
+    max-width: var(--column);
     display: flex;
     align-items: flex-end;
+    border-bottom: var(--stroke) solid var(--fg-secondary);
   }
+  form.signup:focus-within { border-bottom-color: var(--ink); }
   .signup input[type=email], .signup button {
     background: transparent;
     border: none;
-    border-bottom: var(--stroke) solid var(--fg-secondary);
     border-radius: 0;
     padding: var(--sp-sm) 0;
     line-height: 1.6;
     -webkit-appearance: none;
     appearance: none;
     font-family: inherit;
-    font-size: 18px;
+    font-size: 20px;
   }
-  .signup input[type=email] { flex: 1 1 0; min-width: 0; color: var(--fg-primary); }
+  .signup input[type=email] { flex: 1 1 0; min-width: 0; color: var(--ink); outline: none; }
   .signup input[type=email]::placeholder { color: var(--fg-secondary); opacity: 1; }
-  .signup input[type=email]:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
   .signup button {
-    font-weight: 600; /* labelLarge */
-    color: var(--fg-primary-focus);
-    padding-left: var(--sp-md);
-    white-space: nowrap;
     flex: 0 0 auto;
+    padding-left: var(--sp-md);
+    font-weight: 700;
+    -webkit-text-stroke: 0.6875px;
+    paint-order: stroke fill;
+    color: var(--ink);
+    white-space: nowrap;
     cursor: pointer;
   }
-  .signup button:hover { border-bottom-color: var(--fg-primary-focus); }
-  .signup button:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
-  .signup input:-webkit-autofill { -webkit-text-fill-color: var(--fg-primary); transition: background-color 0s 600000s; }
-  .signup-note { color: var(--fg-primary); font-size: 16px; }
-  footer {
-    width: 100%;
-    max-width: calc(34 * 18px + 2 * var(--sp-lg)); /* same measure as main, whose em is 18px */
-    margin: 0 auto;
-    padding: var(--sp-lg);
-    text-align: left;
-    color: var(--fg-secondary);
-    font-size: 16px;
+  .signup button:focus-visible { outline: none; text-decoration: underline; text-decoration-thickness: var(--stroke); text-underline-offset: 0.2em; text-decoration-skip-ink: none; }
+  .signup input:-webkit-autofill { -webkit-text-fill-color: var(--ink); transition: background-color 0s 600000s; }
+  .note { margin-top: var(--sp-sm); font-size: 16px; color: var(--fg-secondary); }
+  .note.thanks { color: var(--fg-primary); font-size: 20px; margin-top: var(--sp-xxl); }
+
+  /* Contact sheet: held by spacing alone */
+  .sheet {
+    margin-top: calc(var(--sp-xxl) * 2);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--sp-xl);
+    row-gap: var(--sp-xxl);
+    list-style: none;
   }
-  footer a:focus-visible { color: var(--fg-primary-focus); }
-  @media (max-width: 480px) {
-    footer { padding: var(--sp-lg) var(--sp-md); }
-    main { padding: var(--sp-xl) var(--sp-md); }
-  }</style>
+  .plate { display: block; }
+  .frame { position: relative; aspect-ratio: 1 / 1; background: var(--paper); overflow: hidden; }
+  .frame img, .frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .frame img { object-fit: cover; filter: grayscale(1) contrast(1.1); }
+  .js .frame img { visibility: hidden; }
+  figcaption { margin-top: var(--sp-sm); font-size: 15px; line-height: 1.3; color: var(--fg-secondary); display: flex; gap: var(--sp-sm); }
+  figcaption .n { min-width: 1.1em; }
+  figcaption .l { color: var(--fg-primary); }
+
+  /* End with the mark */
+  .colophon { margin-top: calc(var(--sp-xxl) * 2); font-size: 15px; color: var(--fg-secondary); max-width: var(--column); }
+  .colophon p + p { margin-top: var(--sp-xs); }
+  .end { margin-top: var(--sp-xxl); color: var(--ink); }
+  .end svg { height: 40px; width: auto; display: block; }
+
+  @media (max-width: 640px) {
+    .page { padding: var(--sp-lg) var(--sp-md) var(--sp-xxl); }
+    h1 { margin-top: calc(var(--sp-xxl) * 1.5); }
+    .sheet { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--sp-md); row-gap: var(--sp-xl); margin-top: calc(var(--sp-xxl) * 1.5); }
+    figcaption { font-size: 14px; }
+  }
+</style>
 </head>
 <body>
-<main>
-  <div class="mark"><svg viewBox="0 0 184 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M52 61a40 40 0 0 0 80 0Z" fill="var(--mark-tint)"/><g stroke="currentColor" stroke-width="14" fill="none"><circle cx="92" cy="61" r="47"/><line x1="15" y1="61" x2="169" y2="61" stroke-linecap="round"/></g></svg>focal.</div>
-  <h1>Like Duolingo, but for photography.</h1>
-  <p class="sub">Five-minute lessons that actually teach you photography.</p>
-  <p class="point"><strong>Learn by doing.</strong> Slide the aperture, freeze the motion, shape the light.</p>
-  <p class="point"><strong>It learns you back.</strong> A path from what you know to what you don&rsquo;t.</p>
+<div class="page">
+  <header class="masthead">
+    <div class="brand"><svg viewBox="0 0 169 113" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M34.5 56.5a50 50 0 0 0 100 0Z" fill="var(--mark-tint)"/><g stroke="currentColor" stroke-width="13" fill="none"><circle cx="84.5" cy="56.5" r="50"/><line x1="6.5" y1="56.5" x2="162.5" y2="56.5" stroke-linecap="round"/></g></svg>focal.</div>
+    <div class="season">Winter 2026</div>
+  </header>
+
+  <h1>Learn photography, five minutes at a time.</h1>
+
   <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
     <input type="hidden" name="_subject" value="Focal launch list signup">
     <input type="hidden" name="_next" value="https://focalhq.io/?thanks=1">
     <input type="hidden" name="_captcha" value="false">
-    <input type="email" name="email" placeholder="Email" required aria-label="Email address">
+    <input type="email" name="email" placeholder="Email" required aria-label="Email address" autocomplete="email">
     <button type="submit">Get launch updates</button>
   </form>
-  <p class="signup-note" id="signup-note">Coming this winter. One email when we launch.</p>
-  <p class="photog"><a href="/photographers">Photographers:</a> teach with your work. Get&nbsp;credit. Get&nbsp;paid.</p>
-</main>
-<footer>
-  <p>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a> &middot; Duolingo is a trademark of Duolingo, Inc. Focal is not affiliated with or endorsed by Duolingo.</p>
-</footer>
+  <p class="note" id="signup-note">One email at launch.</p>
+
+  <ol class="sheet" aria-label="Contact sheet">
+    <li><figure class="plate"><div class="frame" data-mode="duo" data-src="assets/sunset.jpg" data-alt="Sun setting over a beach"><img src="assets/sunset.jpg" alt="Sun setting over a beach"></div><figcaption><span class="n">1</span><span class="l">Exposure</span></figcaption></figure></li>
+    <li><figure class="plate"><div class="frame" data-mode="duo" data-src="assets/rose.jpg" data-alt="A rose with a soft blurred background"><img src="assets/rose.jpg" alt="A rose with a soft blurred background"></div><figcaption><span class="n">2</span><span class="l">Aperture</span></figcaption></figure></li>
+    <li><figure class="plate"><div class="frame" data-mode="duo" data-src="assets/hills.jpg" data-alt="Green hills blurred by motion"><img src="assets/hills.jpg" alt="Green hills blurred by motion"></div><figcaption><span class="n">3</span><span class="l">Shutter</span></figcaption></figure></li>
+    <li><figure class="plate"><div class="frame" data-mode="duo" data-src="assets/headphones.jpg" data-alt="Headphones on a white background"><img src="assets/headphones.jpg" alt="Headphones on a white background"></div><figcaption><span class="n">4</span><span class="l">Studio</span></figcaption></figure></li>
+    <li><figure class="plate"><div class="frame" data-mode="halftone" data-src="assets/portrait.jpg" data-alt="Portrait of a man, as a halftone print"><img src="assets/portrait.jpg" alt="Portrait of a man, as a halftone print"></div><figcaption><span class="n">5</span><span class="l">Aperture</span></figcaption></figure></li>
+    <li><figure class="plate"><div class="frame" data-mode="duo" data-src="assets/stripes.jpg" data-alt="A man in striped window light"><img src="assets/stripes.jpg" alt="A man in striped window light"></div><figcaption><span class="n">6</span><span class="l">Light</span></figcaption></figure></li>
+  </ol>
+
+  <div class="colophon">
+    <p><a href="/photographers">Photographers:</a> teach with your work. Get&nbsp;credit. Get&nbsp;paid.</p>
+    <p>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></p>
+  </div>
+
+  <div class="end"><svg viewBox="0 0 169 113" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Focal"><path d="M34.5 56.5a50 50 0 0 0 100 0Z" fill="var(--mark-tint)"/><g stroke="currentColor" stroke-width="13" fill="none"><circle cx="84.5" cy="56.5" r="50"/><line x1="6.5" y1="56.5" x2="162.5" y2="56.5" stroke-linecap="round"/></g></svg></div>
+</div>
+
 <script>
+(function () {
   if (new URLSearchParams(location.search).has('thanks')) {
     var n = document.getElementById('signup-note');
-    n.textContent = "You’re on the list. Talk soon.";
-    n.style.color = 'var(--fg-primary)';
-    n.style.fontSize = '18px';
-    n.style.marginTop = 'var(--sp-xxl)';
+    n.textContent = 'You’re on the list. Talk soon.';
+    n.className = 'note thanks';
     document.querySelector('form.signup').style.display = 'none';
   }
+
+  var root = document.documentElement;
+  root.className += ' js';
+  var dark = matchMedia('(prefers-color-scheme: dark)');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  var INK = { light: [18, 18, 18], dark: [245, 245, 245] };
+  var PAPER = { light: [245, 245, 245], dark: [18, 18, 18] };
+  function css(rgb) { return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')'; }
+  function lin(c) { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+
+  var plates = [];
+
+  function load(el) {
+    var img = new Image();
+    var p = { el: el, mode: el.getAttribute('data-mode'), img: null, canvas: document.createElement('canvas'), progress: 1, started: false, dots: null };
+    p.canvas.setAttribute('role', 'img');
+    p.canvas.setAttribute('aria-label', el.getAttribute('data-alt'));
+    el.appendChild(p.canvas);
+    img.onload = function () { p.img = img; layout(p); };
+    img.src = el.getAttribute('data-src');
+    plates.push(p);
+    return p;
+  }
+
+  // Center-crop the photo to the square frame at device resolution.
+  function sample(p) {
+    var r = p.el.getBoundingClientRect();
+    var d = Math.min(window.devicePixelRatio || 1, 2);
+    var w = Math.max(1, Math.round(r.width * d)), h = Math.max(1, Math.round(r.height * d));
+    p.canvas.width = w; p.canvas.height = h;
+    var s = Math.min(p.img.naturalWidth, p.img.naturalHeight);
+    var sx = (p.img.naturalWidth - s) / 2, sy = (p.img.naturalHeight - s) / 2;
+    var ctx = p.canvas.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(p.img, sx, sy, s, s, 0, 0, w, h);
+    return { ctx: ctx, w: w, h: h, d: d, data: ctx.getImageData(0, 0, w, h).data };
+  }
+
+  // Percentile levels so every plate uses the full ink-to-paper range.
+  function levels(vals) {
+    var a = Array.prototype.slice.call(vals).sort(function (x, y) { return x - y; });
+    var lo = a[Math.floor(a.length * 0.02)], hi = a[Math.floor(a.length * 0.94)];
+    if (hi - lo < 1e-4) hi = lo + 1e-4;
+    return [lo, hi];
+  }
+
+  function drawDuotone(p) {
+    var s = sample(p), isDark = dark.matches;
+    var ink = isDark ? INK.dark : INK.light, paper = isDark ? PAPER.dark : PAPER.light;
+    var n = s.w * s.h, lum = new Float32Array(n), i;
+    for (i = 0; i < n; i++) {
+      lum[i] = 0.2126 * s.data[i * 4] + 0.7152 * s.data[i * 4 + 1] + 0.0722 * s.data[i * 4 + 2];
+    }
+    var sub = []; for (i = 0; i < n; i += 7) sub.push(lum[i]);
+    var lv = levels(sub), out = s.ctx.createImageData(s.w, s.h);
+    for (i = 0; i < n; i++) {
+      var v = Math.min(1, Math.max(0, (lum[i] - lv[0]) / (lv[1] - lv[0])));
+      // dark mode keeps the photo as shot: shadows are the dark paper, lights the light paper
+      var t = v;
+      var lo = isDark ? PAPER.dark : INK.light, hi = isDark ? INK.dark : PAPER.light;
+      out.data[i * 4] = lo[0] + (hi[0] - lo[0]) * t;
+      out.data[i * 4 + 1] = lo[1] + (hi[1] - lo[1]) * t;
+      out.data[i * 4 + 2] = lo[2] + (hi[2] - lo[2]) * t;
+      out.data[i * 4 + 3] = 255;
+    }
+    s.ctx.putImageData(out, 0, 0);
+  }
+
+  // Halftone: ink dots on paper, one staggered-row grid (as InkHalftoneFront).
+  // Coverage comes from the area mean in linear light.
+  function buildDots(p) {
+    var s = sample(p), isDark = dark.matches;
+    var pitch = Math.max(4, Math.min(6.5, (s.w / s.d) / 60)) * s.d;
+    var cols = Math.ceil(s.w / pitch) + 1, rows = Math.ceil(s.h / pitch) + 1;
+    var means = [], r, c, x, y;
+    for (r = 0; r < rows; r++) {
+      for (c = 0; c < cols; c++) {
+        var cx = (c + (r % 2 ? 1 : 0.5)) * pitch, cy = (r + 0.5) * pitch;
+        var x0 = Math.max(0, Math.floor(cx - pitch / 2)), x1 = Math.min(s.w, Math.ceil(cx + pitch / 2));
+        var y0 = Math.max(0, Math.floor(cy - pitch / 2)), y1 = Math.min(s.h, Math.ceil(cy + pitch / 2));
+        var sum = 0, cnt = 0;
+        for (y = y0; y < y1; y++) for (x = x0; x < x1; x++) {
+          var k = (y * s.w + x) * 4;
+          sum += 0.2126 * lin(s.data[k]) + 0.7152 * lin(s.data[k + 1]) + 0.0722 * lin(s.data[k + 2]);
+          cnt++;
+        }
+        means.push({ cx: cx, cy: cy, v: cnt ? sum / cnt : 1 });
+      }
+    }
+    var lv = levels(means.map(function (m) { return m.v; }));
+    p.dots = means.map(function (m) {
+      var L = Math.min(1, Math.max(0, (m.v - lv[0]) / (lv[1] - lv[0])));
+      L = Math.pow(L, 0.8); // lift the mids a little so the face opens up
+      var cov = isDark ? L : 1 - L;
+      var rad = cov <= 0.7854 ? Math.sqrt(cov / Math.PI) : 0.5 + (cov - 0.7854) / 0.2146 * 0.22;
+      return { x: m.cx, y: m.cy, r: rad * pitch, g: (m.cx / s.w + m.cy / s.h) / 2 };
+    });
+    p.size = { w: s.w, h: s.h };
+  }
+
+  function paintHalftone(p) {
+    var isDark = dark.matches, cv = p.canvas, ctx = cv.getContext('2d');
+    ctx.fillStyle = css(isDark ? PAPER.dark : PAPER.light);
+    ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = css(isDark ? INK.dark : INK.light);
+    var t = p.progress;
+    for (var i = 0; i < p.dots.length; i++) {
+      var d = p.dots[i];
+      // a slow diagonal resolve: each dot grows over the last 40 percent of the run
+      var local = Math.min(1, Math.max(0, (t * 1.5 - d.g * 0.75) / 0.75));
+      var k = local * local * (3 - 2 * local);
+      var r = d.r * k;
+      if (r < 0.2) continue;
+      ctx.beginPath(); ctx.arc(d.x, d.y, r, 0, 6.2832); ctx.fill();
+    }
+  }
+
+  function layout(p) {
+    if (!p.img) return;
+    if (p.mode === 'halftone') { buildDots(p); paintHalftone(p); }
+    else drawDuotone(p);
+  }
+
+  function resolve(p) {
+    if (p.started) return;
+    p.started = true;
+    if (reduce.matches) { p.progress = 1; paintHalftone(p); return; }
+    var t0 = null, dur = 7000;
+    (function step(ts) {
+      if (t0 === null) t0 = ts;
+      var u = Math.min(1, (ts - t0) / dur);
+      p.progress = 1 - Math.pow(1 - u, 2);
+      paintHalftone(p);
+      if (u < 1) requestAnimationFrame(step);
+    })(performance.now());
+  }
+
+  var frames = document.querySelectorAll('.frame');
+  Array.prototype.forEach.call(frames, function (el) {
+    var p = load(el);
+    if (p.mode === 'halftone') p.progress = 0; // paper until the print resolves
+  });
+
+  // The halftone print starts blank and resolves once it is in view.
+  var htm = plates.filter(function (p) { return p.mode === 'halftone'; })[0];
+  if (htm) {
+    var wait = setInterval(function () {
+      if (htm.dots) { clearInterval(wait); observe(); }
+    }, 60);
+    var observe = function () {
+      if (htm.started) return;
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (es) {
+          if (es[0].isIntersecting) { io.disconnect(); resolve(htm); }
+        }, { threshold: 0.4 });
+        io.observe(htm.el);
+      } else resolve(htm);
+    };
+  }
+
+  var tm;
+  function relayout() {
+    clearTimeout(tm);
+    tm = setTimeout(function () { plates.forEach(layout); }, 120);
+  }
+  window.addEventListener('resize', relayout);
+  dark.addEventListener ? dark.addEventListener('change', relayout) : dark.addListener(relayout);
+})();
 </script>
 </body>
 </html>
