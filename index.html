@@ -1,19 +1,17 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Focal - learn photography</title>
-<meta name="description" content="Focal: five-minute gamified lessons that actually teach you photography.">
-<meta name="theme-color" content="#F5F5F5" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Focal: five-minute lessons that teach you photography.">
+<meta name="theme-color" content="#F5F5F5">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preload" href="assets/Spectral-Regular.woff2" as="font" type="font/woff2" crossorigin>
-<script>document.documentElement.style.backgroundSize=256/devicePixelRatio+'px'</script>
 <style>
-  /* InkUI tokens (packages/ink/lib/theme/tokens.dart). Ink and paper are the only black and white:
-     ink #121212 on paper #F5F5F5, inverted in dark (Kent, 10-17). Content page: no accent tokens (Kent, 09-04) */
-  /* Spectral Regular is the only face, as in the app (OFL: assets/Spectral-OFL.txt) */
+  /* Direction A, the print. Paper F5F5F5, ink 121212, serif only, no borders, no shadows, no translucency.
+     The first screen is one photo rendered as ink dots on a regular grid (same logic as InkHalftoneFront:
+     round opaque dots, staggered rows, size carries tone). */
   @font-face {
     font-family: 'Spectral';
     src: url(assets/Spectral-Regular.woff2) format('woff2');
@@ -22,82 +20,48 @@
     font-display: block;
   }
   :root {
-    color-scheme: light dark;
     --paper: #F5F5F5;
-    --paper-tile: url(assets/paper-light.webp);
+    --ink: #121212;
     --fg-primary: #3A3A3A;
-    --fg-primary-focus: #121212;
     --fg-secondary: #6B6B6B;
-    --mark-tint: #C8C8C8; /* ink at 20 percent over paper, pre-blended: no translucency */
-    --r-sm: 8px; --stroke: 4px;
-    --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #121212;
-      --paper-tile: url(assets/paper-dark.webp);
-      --fg-primary: #E5E5E5;
-      --fg-primary-focus: #F5F5F5;
-      --fg-secondary: #A0A0A0;
-      --mark-tint: #3F3F3F;
-    }
+    --shade: #C8C8C8; /* ink at 20 percent over paper, pre-blended */
+    --stroke: 4px;
+    --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html {
-    background: var(--paper) var(--paper-tile) 0 0 / 128px 128px repeat scroll;
-  }
+  html { background: var(--paper); }
   body {
     color: var(--fg-primary);
     font-family: 'Spectral', Georgia, serif;
-    font-synthesis: none; /* bold is Skia's fake bold, drawn below as a text stroke */
+    font-synthesis: none;
     font-size: 18px;
     line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
   }
-  main {
-    flex: 1;
-    width: 100%;
-    max-width: calc(34em + 2 * var(--sp-lg));
-    margin: 0 auto;
-    padding: var(--sp-xxl) var(--sp-lg);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  a { color: inherit; text-underline-offset: 0.15em; }
+  a:focus-visible { outline: none; color: var(--ink); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
+
+  /* Skia-style fake bold, as in the app */
+  .bold { -webkit-text-stroke: 0.6875px; paint-order: stroke fill; color: var(--ink); }
+
+  /* ---- first screen ---- */
+  .hero { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; }
+  #print { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  .card {
+    position: absolute;
+    left: var(--sp-lg); top: var(--sp-xl);
+    width: calc(100% - 2 * var(--sp-lg));
+    max-width: 440px;
   }
-  .sub { margin-top: var(--sp-md); text-wrap: balance; }
-  .sub + .point { margin-top: var(--sp-lg); }
-  .point + .point { margin-top: var(--sp-md); }
-  .point + .signup { margin-top: var(--sp-xxl); }
-  .signup + .signup-note { margin-top: var(--sp-sm); }
-  .signup-note + .photog { margin-top: var(--sp-xl); }
-  p { text-wrap: pretty; }
-  a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
-  a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
-  .mark {
-    font-size: 18px;
-    font-weight: 700; /* titleSmall */
-    color: var(--fg-primary-focus);
-  }
-  .mark svg { -webkit-text-stroke: 0; height: 20px; width: auto; margin-right: var(--sp-sm); position: relative; top: 2px; }
-  h1 { margin-top: var(--sp-xxl); }
+  .lockup { display: flex; align-items: flex-end; gap: var(--sp-md); }
+  .lockup svg { height: 40px; width: auto; flex: none; margin-bottom: 8px; }
   h1 {
-    text-wrap: balance;
-    font-size: 28px;
-    font-weight: 700; /* titleLarge */
-    line-height: 1.25;
-    color: var(--fg-primary-focus);
+    font-size: 64px; line-height: 1; font-weight: 400;
+    color: var(--ink);
+    -webkit-text-stroke: 1.5px; paint-order: stroke fill;
+    letter-spacing: -0.01em;
   }
-  /* Skia fake bold (SkScalerContext): frame width = size x lerp(size, 9..36 -> 1/24..1/32); 18px 0.6875px, 28px 0.9614px */
-  .mark, strong, .signup button { -webkit-text-stroke: 0.6875px; paint-order: stroke fill; }
-  h1 { -webkit-text-stroke: 0.9614px; paint-order: stroke fill; }
-  strong { font-weight: 600; }
-  .point strong, .sub strong { color: var(--fg-primary-focus); }
-  form.signup {
-    display: flex;
-    align-items: flex-end;
-  }
+  .line { margin-top: var(--sp-md); font-size: 20px; color: var(--ink); }
+  form.signup { margin-top: var(--sp-xl); display: flex; align-items: flex-end; }
   .signup input[type=email], .signup button {
     background: transparent;
     border: none;
@@ -105,70 +69,197 @@
     border-radius: 0;
     padding: var(--sp-sm) 0;
     line-height: 1.6;
-    -webkit-appearance: none;
-    appearance: none;
-    font-family: inherit;
-    font-size: 18px;
+    -webkit-appearance: none; appearance: none;
+    font-family: inherit; font-size: 18px;
   }
-  .signup input[type=email] { flex: 1 1 0; min-width: 0; color: var(--fg-primary); }
+  .signup input[type=email] { flex: 1 1 0; min-width: 0; color: var(--ink); }
   .signup input[type=email]::placeholder { color: var(--fg-secondary); opacity: 1; }
-  .signup input[type=email]:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
+  .signup input[type=email]:focus-visible, .signup button:focus-visible, .signup button:hover { outline: none; border-bottom-color: var(--ink); }
   .signup button {
-    font-weight: 600; /* labelLarge */
-    color: var(--fg-primary-focus);
-    padding-left: var(--sp-md);
-    white-space: nowrap;
-    flex: 0 0 auto;
-    cursor: pointer;
+    padding-left: var(--sp-md); white-space: nowrap; flex: none; cursor: pointer;
+    color: var(--ink); -webkit-text-stroke: 0.6875px; paint-order: stroke fill;
   }
-  .signup button:hover { border-bottom-color: var(--fg-primary-focus); }
-  .signup button:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
-  .signup input:-webkit-autofill { -webkit-text-fill-color: var(--fg-primary); transition: background-color 0s 600000s; }
-  .signup-note { color: var(--fg-primary); font-size: 16px; }
-  footer {
-    width: 100%;
-    max-width: calc(34 * 18px + 2 * var(--sp-lg)); /* same measure as main, whose em is 18px */
-    margin: 0 auto;
-    padding: var(--sp-lg);
-    text-align: left;
-    color: var(--fg-secondary);
-    font-size: 16px;
+  .signup input:-webkit-autofill { -webkit-text-fill-color: var(--ink); transition: background-color 0s 600000s; }
+  .note { margin-top: var(--sp-sm); font-size: 16px; color: var(--fg-primary); }
+
+  /* ---- plates ---- */
+  .plates { padding: 160px var(--sp-lg) 0; display: flex; flex-direction: column; gap: 160px; }
+  .plate { width: 100%; max-width: 560px; }
+  .plate img { display: block; width: 100%; height: auto; background: var(--shade); }
+  .plate figcaption { margin-top: var(--sp-md); font-size: 16px; color: var(--fg-secondary); }
+  .plate figcaption b { font-weight: 400; color: var(--ink); -webkit-text-stroke: 0.6875px; paint-order: stroke fill; }
+
+  /* ---- close ---- */
+  .end { padding: 200px var(--sp-lg) 96px; text-align: center; color: var(--ink); }
+  .end svg { height: 56px; width: auto; }
+  .legal { margin-top: 160px; font-size: 14px; color: var(--fg-secondary); text-align: center; }
+
+  @media (min-width: 760px) {
+    .card { left: 64px; top: 56px; max-width: 480px; }
+    h1 { font-size: 88px; }
+    .lockup svg { height: 52px; margin-bottom: 12px; }
+    .line { font-size: 24px; }
+    .plates { padding: 240px 64px 0; gap: 240px; }
+    .plate:nth-child(odd) { margin-left: 6%; }
+    .plate:nth-child(even) { margin-left: auto; margin-right: 12%; }
+    .plate:nth-child(1) { max-width: 520px; }
+    .plate:nth-child(2) { max-width: 560px; }
+    .plate:nth-child(3) { max-width: 500px; }
+    .plate:nth-child(4) { max-width: 540px; }
+    .end { padding: 280px 64px 120px; }
+    .end svg { height: 72px; }
   }
-  footer a:focus-visible { color: var(--fg-primary-focus); }
-  @media (max-width: 480px) {
-    footer { padding: var(--sp-lg) var(--sp-md); }
-    main { padding: var(--sp-xl) var(--sp-md); }
-  }</style>
+</style>
 </head>
 <body>
-<main>
-  <div class="mark"><svg viewBox="0 0 184 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M52 61a40 40 0 0 0 80 0Z" fill="var(--mark-tint)"/><g stroke="currentColor" stroke-width="14" fill="none"><circle cx="92" cy="61" r="47"/><line x1="15" y1="61" x2="169" y2="61" stroke-linecap="round"/></g></svg>focal.</div>
-  <h1>Like Duolingo, but for photography.</h1>
-  <p class="sub">Five-minute lessons that actually teach you photography.</p>
-  <p class="point"><strong>Learn by doing.</strong> Slide the aperture, freeze the motion, shape the light.</p>
-  <p class="point"><strong>It learns you back.</strong> A path from what you know to what you don&rsquo;t.</p>
-  <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
-    <input type="hidden" name="_subject" value="Focal launch list signup">
-    <input type="hidden" name="_next" value="https://focalhq.io/?thanks=1">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="email" name="email" placeholder="Email" required aria-label="Email address">
-    <button type="submit">Get launch updates</button>
-  </form>
-  <p class="signup-note" id="signup-note">Coming this winter. One email when we launch.</p>
-  <p class="photog"><a href="/photographers">Photographers:</a> teach with your work. Get&nbsp;credit. Get&nbsp;paid.</p>
+<header class="hero">
+  <canvas id="print" aria-hidden="true"></canvas>
+  <div class="card" id="card">
+    <div class="lockup">
+      <svg viewBox="0 0 169 113" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M34.5 56.5a50 50 0 0 0 100 0Z" fill="#C8C8C8"/><circle cx="84.5" cy="56.5" r="50" fill="none" stroke="#121212" stroke-width="13"/><line x1="6.5" y1="56.5" x2="162.5" y2="56.5" stroke="#121212" stroke-width="13" stroke-linecap="round"/></svg>
+      <h1>Focal</h1>
+    </div>
+    <p class="line">Photography, five minutes at a time.</p>
+    <form class="signup" id="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
+      <input type="hidden" name="_subject" value="Focal launch list signup">
+      <input type="hidden" name="_next" value="https://focalhq.io/?thanks=1">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="email" name="email" placeholder="Email" required aria-label="Email address">
+      <button type="submit">Get updates</button>
+    </form>
+    <p class="note" id="note">Coming this winter.</p>
+  </div>
+</header>
+
+<main class="plates">
+  <figure class="plate"><img src="assets/plate-exposure.jpg" width="1143" height="1600" loading="lazy" alt="Sunset over breaking waves"><figcaption><b>Exposure.</b> How much light the photo gets.</figcaption></figure>
+  <figure class="plate"><img src="assets/plate-aperture.jpg" width="1072" height="1600" loading="lazy" alt="A hand in focus against blurred blinds"><figcaption><b>Aperture.</b> How much stays sharp.</figcaption></figure>
+  <figure class="plate"><img src="assets/plate-shutter.jpg" width="1131" height="1600" loading="lazy" alt="A green field streaked by motion"><figcaption><b>Shutter.</b> How motion looks.</figcaption></figure>
+  <figure class="plate"><img src="assets/plate-light.jpg" width="1070" height="1600" loading="lazy" alt="A woman in golden backlight"><figcaption><b>Light.</b> Where it comes from.</figcaption></figure>
 </main>
-<footer>
-  <p>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a> &middot; Duolingo is a trademark of Duolingo, Inc. Focal is not affiliated with or endorsed by Duolingo.</p>
-</footer>
+
+<section class="end">
+  <svg viewBox="0 0 169 113" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Focal"><path d="M34.5 56.5a50 50 0 0 0 100 0Z" fill="#C8C8C8"/><circle cx="84.5" cy="56.5" r="50" fill="none" stroke="#121212" stroke-width="13"/><line x1="6.5" y1="56.5" x2="162.5" y2="56.5" stroke="#121212" stroke-width="13" stroke-linecap="round"/></svg>
+  <p class="legal">&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a></p>
+</section>
+
 <script>
+(function () {
   if (new URLSearchParams(location.search).has('thanks')) {
-    var n = document.getElementById('signup-note');
-    n.textContent = "You’re on the list. Talk soon.";
-    n.style.color = 'var(--fg-primary)';
+    var n = document.getElementById('note');
+    n.textContent = 'Youâ€™re on the list. Talk soon.';
+    document.getElementById('signup').style.display = 'none';
+    n.style.marginTop = 'var(--sp-xl)';
     n.style.fontSize = '18px';
-    n.style.marginTop = 'var(--sp-xxl)';
-    document.querySelector('form.signup').style.display = 'none';
   }
+
+  var canvas = document.getElementById('print');
+  var ctx = canvas.getContext('2d');
+  var card = document.getElementById('card');
+  var INK = '#121212';
+  var ROW = 0.866;            // staggered rows, an even screen
+  var W, H, dpr, fine, S, integral, sw, sh, knock;
+  var startPitch = 44;
+  var DURATION = 1100;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var img = new Image();
+  var ready = false, t0 = null, lastW = 0;
+
+  function lin(c) { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+  var LUT = new Float32Array(256);
+  for (var i = 0; i < 256; i++) LUT[i] = lin(i);
+
+  function layout() {
+    W = document.documentElement.clientWidth;
+    H = canvas.parentNode.clientHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    fine = W < 760 ? 6 : 7;
+    // Linear-light luminance of the cover-fitted photo at twice the fine grid, as a summed-area table.
+    sw = Math.ceil(W / fine) * 2; sh = Math.ceil(H / (fine * ROW)) * 2;
+    var off = document.createElement('canvas'); off.width = sw; off.height = sh;
+    var o = off.getContext('2d');
+    var k = Math.max(sw / img.naturalWidth, sh / img.naturalHeight);
+    var dw = img.naturalWidth * k, dh = img.naturalHeight * k;
+    o.imageSmoothingQuality = 'high';
+    o.drawImage(img, (sw - dw) / 2, (sh - dh) * 0.45, dw, dh);
+    var d = o.getImageData(0, 0, sw, sh).data;
+    integral = new Float64Array((sw + 1) * (sh + 1));
+    for (var y = 0; y < sh; y++) {
+      var row = 0;
+      for (var x = 0; x < sw; x++) {
+        var p = (y * sw + x) * 4;
+        row += 0.2126 * LUT[d[p]] + 0.7152 * LUT[d[p + 1]] + 0.0722 * LUT[d[p + 2]];
+        integral[(y + 1) * (sw + 1) + x + 1] = integral[y * (sw + 1) + x + 1] + row;
+      }
+    }
+    // Type is knocked out of the print: no dots under the card.
+    var r = card.getBoundingClientRect(), pad = 20;
+    knock = { l: r.left - pad, t: r.top - pad, r: r.right + pad, b: r.bottom + pad };
+  }
+
+  function mean(x0, y0, x1, y1) {
+    // box mean of linear luminance, coordinates in css px
+    var ax = Math.max(0, Math.min(sw, Math.floor(x0 / W * sw))), bx = Math.max(ax + 1, Math.min(sw, Math.ceil(x1 / W * sw)));
+    var ay = Math.max(0, Math.min(sh, Math.floor(y0 / H * sh))), by = Math.max(ay + 1, Math.min(sh, Math.ceil(y1 / H * sh)));
+    if (ax >= sw) ax = sw - 1, bx = sw;
+    if (ay >= sh) ay = sh - 1, by = sh;
+    var s = integral[by * (sw + 1) + bx] - integral[ay * (sw + 1) + bx] - integral[by * (sw + 1) + ax] + integral[ay * (sw + 1) + ax];
+    return s / ((bx - ax) * (by - ay));
+  }
+
+  function draw(pitch) {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = INK;
+    ctx.beginPath();
+    var rowH = pitch * ROW, rows = Math.ceil(H / rowH) + 1, cols = Math.ceil(W / pitch) + 1;
+    for (var j = 0; j < rows; j++) {
+      var cy = (j + 0.5) * rowH, off = (j & 1) ? 0 : pitch / 2;
+      for (var i = 0; i <= cols; i++) {
+        var cx = i * pitch + off;
+        if (cx > knock.l && cx < knock.r && cy > knock.t && cy < knock.b) continue;
+        var L = mean(cx - pitch / 2, cy - rowH / 2, cx + pitch / 2, cy + rowH / 2);
+        var a = 1 - Math.min(1, Math.pow(L, 0.5) / 0.97); // ink coverage, tone halfway between linear and perceptual so shadows keep detail
+        if (a <= 0) continue;
+        var r = pitch * Math.sqrt(ROW * a / Math.PI) * 1.08;
+        if (r < 0.4) continue;
+        ctx.moveTo(cx + r, cy);
+        ctx.arc(cx, cy, r, 0, 6.283185);
+      }
+    }
+    ctx.fill();
+  }
+
+  // Coarse to fine, exponential ease-out, no overshoot.
+  function frame(ts) {
+    if (t0 === null) t0 = ts;
+    var t = Math.min(1, (ts - t0) / DURATION);
+    var e = 1 - Math.pow(1 - t, 3);
+    var pitch = startPitch * Math.pow(fine / startPitch, e);
+    draw(pitch);
+    if (t < 1) requestAnimationFrame(frame);
+  }
+
+  function start() {
+    ready = true; layout(); lastW = W;
+    if (reduce) draw(fine); else requestAnimationFrame(frame);
+  }
+
+  var wide = matchMedia('(min-aspect-ratio: 5/4)').matches;
+  img.onload = function () {
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+  };
+  img.src = wide ? 'assets/hero-wide.jpg' : 'assets/hero-portrait.jpg';
+
+  var rz;
+  addEventListener('resize', function () {
+    if (!ready) return;
+    clearTimeout(rz);
+    rz = setTimeout(function () { layout(); draw(fine); }, 120);
+  });
+})();
 </script>
 </body>
 </html>
+
