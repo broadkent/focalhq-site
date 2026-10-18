@@ -5,15 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Focal - learn photography</title>
 <meta name="description" content="Focal: five-minute gamified lessons that actually teach you photography.">
-<meta name="theme-color" content="#F5F5F5" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F5F5F5">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preload" href="assets/Spectral-Regular.woff2" as="font" type="font/woff2" crossorigin>
-<script>document.documentElement.style.backgroundSize=256/devicePixelRatio+'px'</script>
 <style>
-  /* InkUI tokens (packages/ink/lib/theme/tokens.dart). Ink and paper are the only black and white:
-     ink #121212 on paper #F5F5F5, inverted in dark (Kent, 10-17). Content page: no accent tokens (Kent, 09-04) */
-  /* Spectral Regular is the only face, as in the app (OFL: assets/Spectral-OFL.txt) */
+  /* InkUI tokens: ink #121212 on paper #F5F5F5. Paper only on this page. */
   @font-face {
     font-family: 'Spectral';
     src: url(assets/Spectral-Regular.woff2) format('woff2');
@@ -22,131 +18,123 @@
     font-display: block;
   }
   :root {
-    color-scheme: light dark;
+    color-scheme: light;
     --paper: #F5F5F5;
-    --paper-tile: url(assets/paper-light.webp);
+    --ink: #121212;
     --fg-primary: #3A3A3A;
-    --fg-primary-focus: #121212;
+    --fg-focus: #121212;
     --fg-secondary: #6B6B6B;
-    --mark-tint: #C8C8C8; /* ink at 20 percent over paper, pre-blended: no translucency */
-    --r-sm: 8px; --stroke: 4px;
-    --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #121212;
-      --paper-tile: url(assets/paper-dark.webp);
-      --fg-primary: #E5E5E5;
-      --fg-primary-focus: #F5F5F5;
-      --fg-secondary: #A0A0A0;
-      --mark-tint: #3F3F3F;
-    }
+    --mark-tint: #C8C8C8; /* ink at 20 percent over paper, pre-blended */
+    --stroke: 4px;
+    --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px; --sp-huge: 120px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html {
-    background: var(--paper) var(--paper-tile) 0 0 / 128px 128px repeat scroll;
-  }
+  html { background: var(--paper) url(assets/paper-light.webp) 0 0 / 128px 128px repeat scroll; }
   body {
     color: var(--fg-primary);
     font-family: 'Spectral', Georgia, serif;
-    font-synthesis: none; /* bold is Skia's fake bold, drawn below as a text stroke */
+    font-synthesis: none;
     font-size: 18px;
     line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
   }
-  main {
-    flex: 1;
-    width: 100%;
-    max-width: calc(34em + 2 * var(--sp-lg));
-    margin: 0 auto;
-    padding: var(--sp-xxl) var(--sp-lg);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .sub { margin-top: var(--sp-md); text-wrap: balance; }
-  .sub + .point { margin-top: var(--sp-lg); }
-  .point + .point { margin-top: var(--sp-md); }
-  .point + .signup { margin-top: var(--sp-xxl); }
-  .signup + .signup-note { margin-top: var(--sp-sm); }
-  .signup-note + .photog { margin-top: var(--sp-xl); }
   p { text-wrap: pretty; }
   a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
-  a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
-  .mark {
-    font-size: 18px;
-    font-weight: 700; /* titleSmall */
-    color: var(--fg-primary-focus);
+  a:focus-visible { outline: none; color: var(--fg-focus); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
+  /* Skia fake bold, as in the app */
+  .wordmark, .signup button, h1 { -webkit-text-stroke: 0.9614px; paint-order: stroke fill; font-weight: 700; color: var(--fg-focus); }
+
+  /* One: the field of dots */
+  .hero {
+    height: 100vh; height: 100svh;
+    min-height: 480px;
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--sp-lg);
   }
-  .mark svg { -webkit-text-stroke: 0; height: 20px; width: auto; margin-right: var(--sp-sm); position: relative; top: 2px; }
-  h1 { margin-top: var(--sp-xxl); }
-  h1 {
-    text-wrap: balance;
-    font-size: 28px;
-    font-weight: 700; /* titleLarge */
-    line-height: 1.25;
-    color: var(--fg-primary-focus);
+  #field { display: block; max-width: 100%; }
+  .hero noscript img { display: block; max-height: 80svh; max-width: 100%; }
+
+  /* Two: Focal, one line, sign-up */
+  .intro {
+    max-width: calc(34em + 2 * var(--sp-lg));
+    margin: 0 auto;
+    padding: var(--sp-huge) var(--sp-lg) var(--sp-huge);
   }
-  /* Skia fake bold (SkScalerContext): frame width = size x lerp(size, 9..36 -> 1/24..1/32); 18px 0.6875px, 28px 0.9614px */
-  .mark, strong, .signup button { -webkit-text-stroke: 0.6875px; paint-order: stroke fill; }
-  h1 { -webkit-text-stroke: 0.9614px; paint-order: stroke fill; }
-  strong { font-weight: 600; }
-  .point strong, .sub strong { color: var(--fg-primary-focus); }
-  form.signup {
-    display: flex;
-    align-items: flex-end;
-  }
+  h1 { font-size: 28px; line-height: 1.25; text-wrap: balance; }
+  .sub { margin-top: var(--sp-md); text-wrap: balance; }
+  form.signup { display: flex; align-items: flex-end; margin-top: var(--sp-xxl); }
   .signup input[type=email], .signup button {
-    background: transparent;
-    border: none;
+    background: transparent; border: none;
     border-bottom: var(--stroke) solid var(--fg-secondary);
-    border-radius: 0;
-    padding: var(--sp-sm) 0;
-    line-height: 1.6;
-    -webkit-appearance: none;
-    appearance: none;
-    font-family: inherit;
-    font-size: 18px;
+    border-radius: 0; padding: var(--sp-sm) 0; line-height: 1.6;
+    -webkit-appearance: none; appearance: none;
+    font-family: inherit; font-size: 18px;
   }
   .signup input[type=email] { flex: 1 1 0; min-width: 0; color: var(--fg-primary); }
   .signup input[type=email]::placeholder { color: var(--fg-secondary); opacity: 1; }
-  .signup input[type=email]:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
-  .signup button {
-    font-weight: 600; /* labelLarge */
-    color: var(--fg-primary-focus);
-    padding-left: var(--sp-md);
-    white-space: nowrap;
-    flex: 0 0 auto;
-    cursor: pointer;
-  }
-  .signup button:hover { border-bottom-color: var(--fg-primary-focus); }
-  .signup button:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
+  .signup input[type=email]:focus-visible, .signup button:focus-visible, .signup button:hover { outline: none; border-bottom-color: var(--fg-focus); }
+  .signup button { padding-left: var(--sp-md); white-space: nowrap; flex: 0 0 auto; cursor: pointer; }
   .signup input:-webkit-autofill { -webkit-text-fill-color: var(--fg-primary); transition: background-color 0s 600000s; }
-  .signup-note { color: var(--fg-primary); font-size: 16px; }
-  footer {
-    width: 100%;
-    max-width: calc(34 * 18px + 2 * var(--sp-lg)); /* same measure as main, whose em is 18px */
-    margin: 0 auto;
-    padding: var(--sp-lg);
-    text-align: left;
-    color: var(--fg-secondary);
-    font-size: 16px;
+  .signup-note { margin-top: var(--sp-sm); font-size: 16px; }
+
+  /* Three: what you learn, four duotone photos */
+  .learn { padding: var(--sp-huge) 0; }
+  .strip {
+    display: flex; gap: var(--sp-lg);
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    padding: 0 var(--sp-lg);
+    scrollbar-width: none;
   }
-  footer a:focus-visible { color: var(--fg-primary-focus); }
+  .strip::-webkit-scrollbar { display: none; }
+  .strip figure { flex: 0 0 68vw; scroll-snap-align: center; }
+  .strip canvas, .studio canvas { display: block; width: 100%; height: auto; }
+  .strip canvas { aspect-ratio: 3 / 4; object-fit: cover; }
+  .strip figcaption {
+    margin-top: var(--sp-md);
+    font-size: 15px; letter-spacing: 0.14em;
+    font-variant-caps: all-small-caps; font-synthesis: small-caps;
+    color: var(--fg-focus);
+  }
+
+  /* Four: Studio */
+  .studio {
+    max-width: 1080px; margin: 0 auto;
+    padding: var(--sp-huge) var(--sp-lg);
+    display: grid; gap: var(--sp-xxl);
+    align-items: center;
+  }
+  .studio p { font-size: 28px; line-height: 1.25; text-wrap: balance; color: var(--fg-focus); }
+  .studio canvas { max-width: 420px; }
+
+  /* Five: the mark */
+  .end { padding: var(--sp-huge) var(--sp-lg) var(--sp-xl); display: flex; justify-content: center; }
+  .end svg { width: 72px; height: auto; color: var(--ink); }
+  footer { max-width: 1080px; margin: 0 auto; padding: var(--sp-lg); color: var(--fg-secondary); font-size: 16px; }
+  footer p + p { margin-top: var(--sp-sm); }
+
+  @media (min-width: 900px) {
+    .strip { display: grid; grid-template-columns: repeat(4, 1fr); overflow: visible; max-width: 1280px; margin: 0 auto; padding: 0 var(--sp-xl); }
+    .strip figure { flex: none; }
+    .studio { grid-template-columns: 1fr 1fr; gap: var(--sp-huge); padding-left: var(--sp-xl); padding-right: var(--sp-xl); }
+    .studio .sentence { order: 1; }
+    .studio figure { order: 2; justify-self: end; width: 100%; max-width: 420px; }
+    .studio p { font-size: 36px; }
+    footer { padding: var(--sp-lg) var(--sp-xl); }
+  }
   @media (max-width: 480px) {
-    footer { padding: var(--sp-lg) var(--sp-md); }
-    main { padding: var(--sp-xl) var(--sp-md); }
-  }</style>
+    .intro { padding-left: var(--sp-md); padding-right: var(--sp-md); }
+  }
+</style>
 </head>
 <body>
-<main>
-  <div class="mark"><svg viewBox="0 0 184 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M52 61a40 40 0 0 0 80 0Z" fill="var(--mark-tint)"/><g stroke="currentColor" stroke-width="14" fill="none"><circle cx="92" cy="61" r="47"/><line x1="15" y1="61" x2="169" y2="61" stroke-linecap="round"/></g></svg>focal.</div>
-  <h1>Like Duolingo, but for photography.</h1>
+
+<section class="hero" aria-label="Focal">
+  <canvas id="field" role="img" aria-label="Focal"></canvas>
+  <noscript><img src="assets/hero.jpg" alt=""></noscript>
+</section>
+
+<section class="intro">
+  <h1>Focal</h1>
   <p class="sub">Five-minute lessons that actually teach you photography.</p>
-  <p class="point"><strong>Learn by doing.</strong> Slide the aperture, freeze the motion, shape the light.</p>
-  <p class="point"><strong>It learns you back.</strong> A path from what you know to what you don&rsquo;t.</p>
   <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
     <input type="hidden" name="_subject" value="Focal launch list signup">
     <input type="hidden" name="_next" value="https://focalhq.io/?thanks=1">
@@ -155,20 +143,215 @@
     <button type="submit">Get launch updates</button>
   </form>
   <p class="signup-note" id="signup-note">Coming this winter. One email when we launch.</p>
-  <p class="photog"><a href="/photographers">Photographers:</a> teach with your work. Get&nbsp;credit. Get&nbsp;paid.</p>
-</main>
+</section>
+
+<section class="learn" aria-label="What you learn">
+  <div class="strip">
+    <figure><canvas data-src="assets/exposure.jpg" role="img" aria-label="Exposure"></canvas><figcaption>Exposure</figcaption></figure>
+    <figure><canvas data-src="assets/aperture.jpg" role="img" aria-label="Aperture"></canvas><figcaption>Aperture</figcaption></figure>
+    <figure><canvas data-src="assets/shutter.jpg" role="img" aria-label="Shutter"></canvas><figcaption>Shutter</figcaption></figure>
+    <figure><canvas data-src="assets/light.jpg" role="img" aria-label="Light"></canvas><figcaption>Light</figcaption></figure>
+  </div>
+</section>
+
+<section class="studio">
+  <p class="sentence">Studio reads your own photos and shows what to learn next.</p>
+  <figure><canvas data-src="assets/studio.jpg" role="img" aria-label="A portrait"></canvas></figure>
+</section>
+
+<div class="end">
+  <svg viewBox="0 0 184 122" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Focal"><path d="M52 61a40 40 0 0 0 80 0Z" fill="var(--mark-tint)"/><g stroke="currentColor" stroke-width="14" fill="none"><circle cx="92" cy="61" r="47"/><line x1="15" y1="61" x2="169" y2="61" stroke-linecap="round"/></g></svg>
+</div>
+
 <footer>
+  <p><a href="/photographers">Photographers:</a> teach with your work. Get&nbsp;credit. Get&nbsp;paid.</p>
   <p>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a> &middot; Duolingo is a trademark of Duolingo, Inc. Focal is not affiliated with or endorsed by Duolingo.</p>
 </footer>
+
 <script>
+(function () {
+  var INK = 18, PAPER = 245;                       // 0x12, 0xF5
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- InkUI rolling dots timing (DotTokens / ink_rolling_dots.dart) ----
+     A pulse is 1000 ms: half falls to nothing, half rises, each easeInOut.
+     Dots start 125 ms apart in the app; here the wave crosses the field left to right. */
+  var PULSE = 1000, HALF = PULSE / 2, SPREAD = 900, HOLD = 2800;
+  function ease(u) { u = Math.max(0, Math.min(1, u)); return u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; } // Curves.easeInOut approx.
+
+  function loadImg(src) {
+    return new Promise(function (res, rej) { var i = new Image(); i.onload = function () { res(i); }; i.onerror = rej; i.src = src; });
+  }
+
+  /* ---- Duotone prints: ink and paper only ---- */
+  function levels(data) {
+    var h = new Uint32Array(256), n = data.length / 4, i, l;
+    for (i = 0; i < data.length; i += 4) { l = (data[i] * .2126 + data[i + 1] * .7152 + data[i + 2] * .0722) | 0; h[l]++; }
+    var lo = 0, hi = 255, a = 0;
+    while (lo < 255 && (a += h[lo]) < n * .02) lo++;
+    a = 0; while (hi > 0 && (a += h[hi]) < n * .02) hi--;
+    return [lo, Math.max(hi, lo + 1)];
+  }
+  function duotone(canvas, img, maxW) {
+    var w = Math.min(img.naturalWidth, maxW), h = Math.round(w * img.naturalHeight / img.naturalWidth);
+    canvas.width = w; canvas.height = h;
+    var c = canvas.getContext('2d'); c.drawImage(img, 0, 0, w, h);
+    var d = c.getImageData(0, 0, w, h), p = d.data, lv = levels(p), i, l;
+    for (i = 0; i < p.length; i += 4) {
+      l = (p[i] * .2126 + p[i + 1] * .7152 + p[i + 2] * .0722 - lv[0]) / (lv[1] - lv[0]);
+      l = Math.max(0, Math.min(1, l));
+      l = INK + (PAPER - INK) * l;
+      p[i] = p[i + 1] = p[i + 2] = l;
+    }
+    c.putImageData(d, 0, 0);
+  }
+  [].forEach.call(document.querySelectorAll('canvas[data-src]'), function (cv) {
+    loadImg(cv.getAttribute('data-src')).then(function (img) { duotone(cv, img, 900); });
+  });
+
+  /* ---- The field ---- */
+  var cv = document.getElementById('field'), ctx = cv.getContext('2d');
+  var cols, rows, pitch, maxR, dpr, targets = {}, state = [], delays, mark, photo;
+  var cur = null;           // radius per dot at rest
+  var anim = null, raf = 0, queue = [], busy = false, scrolled = false, photoImg = null;
+
+  function size() {
+    var vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    var W = Math.min(vw - 48, 520), H = Math.min(Math.round(W * 1.45), vh - 96);
+    if (H < W * 0.9) H = Math.round(W * .9);
+    dpr = window.devicePixelRatio || 1;
+    pitch = Math.max(5, Math.round(W / (vw < 600 ? 52 : 58)));
+    cols = Math.floor(W / pitch); rows = Math.floor(H / pitch);
+    var cw = cols * pitch, ch = rows * pitch;
+    cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
+    cv.style.width = cw + 'px'; cv.style.height = ch + 'px';
+    maxR = pitch * 0.5;
+  }
+
+  function sample(draw) {            // darkness 0..1 per dot, from a drawing on a cols x rows grid
+    var S = 4, hi = document.createElement('canvas'); hi.width = cols * S; hi.height = rows * S;
+    var h = hi.getContext('2d'); h.fillStyle = '#fff'; h.fillRect(0, 0, hi.width, hi.height);
+    draw(h, hi.width, hi.height);
+    var lo = document.createElement('canvas'); lo.width = cols; lo.height = rows;
+    var l = lo.getContext('2d'); l.imageSmoothingQuality = 'high'; l.drawImage(hi, 0, 0, cols, rows);
+    var p = l.getImageData(0, 0, cols, rows).data, out = new Float32Array(cols * rows);
+    for (var i = 0; i < out.length; i++) out[i] = Math.max(0, Math.min(1, (255 - p[i * 4]) / (255 - INK)));
+    return out;
+  }
+  function drawMark(h, w, hh) {
+    var mw = w * 0.86, s = mw / 184, mh = 122 * s;
+    h.save(); h.translate((w - mw) / 2, (hh - mh) / 2); h.scale(s, s);
+    h.fillStyle = '#C8C8C8'; h.fill(new Path2D('M52 61a40 40 0 0 0 80 0Z'));
+    h.strokeStyle = '#121212'; h.lineWidth = 14; h.lineCap = 'round';
+    h.beginPath(); h.arc(92, 61, 47, 0, Math.PI * 2); h.stroke();
+    h.beginPath(); h.moveTo(15, 61); h.lineTo(169, 61); h.stroke();
+    h.restore();
+  }
+  function drawPhoto(h, w, hh) {
+    var iw = photoImg.naturalWidth, ih = photoImg.naturalHeight, k = Math.max(w / iw, hh / ih);
+    var sw = w / k, sh = hh / k;
+    h.imageSmoothingQuality = 'high';
+    h.drawImage(photoImg, (iw - sw) / 2, (ih - sh) / 2, sw, sh, 0, 0, w, hh);
+  }
+  function stretch(a) {              // levels, so the print uses the whole ink-to-paper range
+    var s = Array.prototype.slice.call(a).sort(function (x, y) { return x - y; });
+    var lo = s[Math.floor(s.length * .03)], hi = s[Math.floor(s.length * .985)], r = Math.max(hi - lo, .05);
+    for (var i = 0; i < a.length; i++) a[i] = Math.max(0, Math.min(1, (a[i] - lo) / r));
+    return a;
+  }
+
+  function build() {
+    size();
+    mark = sample(drawMark);
+    photo = photoImg ? stretch(sample(drawPhoto)) : null;
+    delays = new Float32Array(cols * rows);
+    for (var y = 0; y < rows; y++) for (var x = 0; x < cols; x++)
+      delays[y * cols + x] = (x / cols) * SPREAD * .8 + (y / rows) * SPREAD * .2;
+  }
+  function radii(t) {                // darkness -> dot radius (area is proportional to ink)
+    var r = new Float32Array(t.length);
+    for (var i = 0; i < t.length; i++) r[i] = maxR * Math.sqrt(t[i]);
+    return r;
+  }
+  function paint(r) {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cols * pitch, rows * pitch);
+    ctx.fillStyle = '#121212';
+    ctx.beginPath();
+    for (var y = 0; y < rows; y++) for (var x = 0; x < cols; x++) {
+      var v = r[y * cols + x]; if (v < .25) continue;
+      var cx = x * pitch + pitch / 2, cy = y * pitch + pitch / 2;
+      ctx.moveTo(cx + v, cy); ctx.arc(cx, cy, v, 0, Math.PI * 2);
+    }
+    ctx.fill();
+  }
+
+  function go(target, fromEmpty, done) {
+    cancelAnimationFrame(raf);
+    var t0 = 0, from = cur, n = target.length, frame = new Float32Array(n);
+    var total = (fromEmpty ? 0 : HALF) + SPREAD * 1 + HALF;
+    function step(now) {
+      if (!t0) t0 = now;
+      var t = now - t0;
+      for (var i = 0; i < n; i++) {
+        var lt = t - delays[i], v;
+        if (fromEmpty) v = target[i] * ease(lt / HALF);
+        else if (lt < HALF) v = from[i] * (1 - ease(lt / HALF));
+        else v = target[i] * ease((lt - HALF) / HALF);
+        frame[i] = v;
+      }
+      paint(frame);
+      if (t < total) raf = requestAnimationFrame(step);
+      else { cur = target; paint(cur); done && done(); }
+    }
+    raf = requestAnimationFrame(step);
+  }
+
+  var markR, photoR, phase = 'init', timer = 0;
+  function toPhoto() {
+    if (phase !== 'mark' || !photoR) return;
+    phase = 'rolling'; clearTimeout(timer);
+    go(photoR, false, function () { phase = 'photo'; });
+  }
+  function start() {
+    markR = radii(mark); photoR = photo ? radii(photo) : null;
+    if (reduced) { cur = photoR || markR; phase = 'photo'; paint(cur); return; }
+    cur = new Float32Array(markR.length); phase = 'rolling';
+    go(markR, true, function () {
+      phase = 'mark';
+      timer = setTimeout(toPhoto, HOLD);
+      if (scrolled) toPhoto();
+    });
+  }
+  addEventListener('scroll', function () {
+    if (scrollY > 24) { scrolled = true; if (phase === 'mark') toPhoto(); }
+  }, { passive: true });
+
+  var rt = 0;
+  addEventListener('resize', function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () {
+      var was = phase; cancelAnimationFrame(raf);
+      build(); markR = radii(mark); photoR = photo ? radii(photo) : null;
+      cur = (was === 'photo' && photoR) ? photoR : markR; paint(cur);
+      if (was === 'rolling') { phase = 'mark'; timer = setTimeout(toPhoto, 600); }
+    }, 150);
+  });
+
+  window.__focalField = { get phase() { return phase; }, toPhoto: toPhoto };
+
+  Promise.all([loadImg('assets/hero.jpg'), document.fonts ? document.fonts.ready : 0]).then(function (a) {
+    photoImg = a[0]; build(); start();
+  }, function () { photoImg = null; build(); start(); });
+
+  /* ---- Sign-up thanks state ---- */
   if (new URLSearchParams(location.search).has('thanks')) {
     var n = document.getElementById('signup-note');
-    n.textContent = "You’re on the list. Talk soon.";
-    n.style.color = 'var(--fg-primary)';
-    n.style.fontSize = '18px';
-    n.style.marginTop = 'var(--sp-xxl)';
+    n.textContent = 'You’re on the list. Talk soon.';
+    n.style.fontSize = '18px'; n.style.marginTop = 'var(--sp-xxl)';
     document.querySelector('form.signup').style.display = 'none';
   }
+})();
 </script>
 </body>
 </html>
