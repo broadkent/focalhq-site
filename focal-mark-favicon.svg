@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Focal</title>
+  <style>
+    :root { --paper: #F5F5F5; --ink: #121212; --shade: #C8C8C8; }
+    @media (prefers-color-scheme: dark) {
+      :root { --paper: #121212; --ink: #F5F5F5; --shade: #3F3F3F; }
+    }
+  </style>
+  <rect width="64" height="64" rx="12" fill="var(--paper)"/>
+
+  <!--
+    Canonical Focal mark, matching lib/shared/widgets/focal_mark.dart:
+    R=15, stroke=0.26R=3.9, bar half-length=1.56R=23.4.
+    Shade = ink at 20% over paper, pre-blended (tools/render_focal_icons.py).
+  -->
+  <path d="M17 32a15 15 0 0 0 30 0H17Z" fill="var(--shade)"/>
+  <circle cx="32" cy="32" r="15" fill="none" stroke="var(--ink)" stroke-width="3.9"/>
+  <path d="M8.6 32h46.8" fill="none" stroke="var(--ink)" stroke-width="3.9" stroke-linecap="round"/>
+</svg>

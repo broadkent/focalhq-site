@@ -1,0 +1,65 @@
+.placement-controls { --pc-bg: var(--bg, #f5f5f4); --pc-fg: var(--fg, #333735); --pc-muted: var(--muted, #7b807e); --pc-line: var(--line, #d9ddda); --pc-accent: var(--accent, #406b83); color:var(--pc-fg); font:12px system-ui,sans-serif; max-width:520px; margin:22px auto 0; }
+.placement-heading { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px; letter-spacing:.06em; text-transform:uppercase; font-size:11px; }
+.placement-hint { color:var(--pc-muted); font-size:10px; letter-spacing:0; text-transform:none; }
+.placement-diagrams { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.placement-view { margin:0; min-width:0; }
+.placement-view figcaption { margin:0 0 5px 2px; color:var(--pc-muted); font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
+.placement-view svg { display:block; width:100%; aspect-ratio:1; overflow:hidden; touch-action:none; }
+.diagram-field { fill:transparent; stroke:var(--pc-line); stroke-width:1; }
+.bust-silhouette { fill:var(--pc-fg); opacity:.1; stroke:var(--pc-fg); stroke-width:1.25; }
+.aim-line { stroke:var(--pc-fg); stroke-width:1; stroke-dasharray:1 5; opacity:.28; }
+.source-marker { cursor:grab; outline:none; }
+.source-marker:active { cursor:grabbing; }
+.source-marker:focus-visible .marker-dot { stroke:var(--pc-fg); stroke-width:2; }
+.marker-hit { fill:transparent; pointer-events:all; }
+.marker-dot { fill:var(--pc-accent); stroke:var(--pc-bg); stroke-width:2; pointer-events:none; }
+.source-marker.is-selected .marker-dot { stroke:var(--pc-fg); stroke-width:3; }
+.emitter-face { fill:var(--pc-bg); opacity:.95; stroke:var(--pc-accent); stroke-width:2; pointer-events:none; }
+.emitter-back { fill:var(--pc-fg); opacity:.35; stroke:var(--pc-fg); stroke-width:1; pointer-events:none; }
+.aiming-edge { stroke:var(--pc-accent); stroke-width:3; stroke-linecap:round; pointer-events:none; }
+.placement-size { display:block; margin-top:12px; color:var(--pc-muted); }
+.placement-size > span { display:flex; justify-content:space-between; }
+.placement-size output { color:var(--pc-fg); font-variant-numeric:tabular-nums; }
+.placement-size input { display:block; width:100%; height:28px; margin:4px 0 0; accent-color:var(--pc-accent); cursor:ew-resize; }
+.placement-controls.is-disabled { opacity:.48; }
+.placement-controls.is-disabled .source-marker { cursor:default; }
+.placement-controls.is-disabled input { cursor:default; }
+.source-choice {display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+.placement-light-title {font-size:14px;color:var(--pc-fg);font-weight:600;letter-spacing:.02em;}
+.source-choice button,.power-heading button {font:inherit;padding:8px 10px;background:transparent;border:1px solid transparent;border-radius:0;color:var(--pc-muted);}
+.source-choice button[aria-pressed="true"] {color:var(--pc-fg);border-bottom-color:var(--pc-fg);}
+.source-choice [data-action="add"] {margin-left:auto;}
+.source-choice [data-action="add"] {color:var(--pc-accent);}
+.source-choice [data-action="remove"] {font-size:18px;padding-inline:8px;}
+.source-choice button[hidden] {display:none;}
+.placement-power {margin-top:16px;color:var(--pc-muted);}
+.power-heading {display:flex;justify-content:space-between;align-items:center;}
+.power-heading label {flex:1;display:flex;justify-content:space-between;align-items:center;}
+.power-heading output {color:var(--pc-fg);font-variant-numeric:tabular-nums;}
+.power-heading button {margin-left:12px;border-color:var(--pc-line);padding:4px 9px;}
+.power-heading button[aria-pressed="true"] {color:var(--pc-accent);}
+.placement-power input {display:block;width:100%;height:28px;margin:4px 0 0;accent-color:var(--pc-accent);}
+.brightness-mode {display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:20px;}
+.brightness-mode select {font:inherit;color:var(--pc-fg);background:var(--pc-bg);border:1px solid var(--pc-line);padding:8px;}
+.other-source {cursor:pointer;outline:none;}
+.other-dot {fill:var(--pc-bg);stroke:var(--pc-muted);stroke-width:1.5;}
+.other-source text {font:10px system-ui,sans-serif;fill:var(--pc-muted);pointer-events:none;}
+.other-source:focus-visible .other-dot {stroke:var(--pc-fg);stroke-width:3;}
+body.is-embedded .view-controls,
+body.is-embedded .placement-controls,
+body.is-embedded .source-settings,
+body.is-embedded .placement-size,
+body.is-embedded .placement-power {display:none;}
+body.is-embedded .placement-controls {margin-top:0;}
+/* Keep both spatial controls beside the portrait's adjustments. Bounded SVG
+   height leaves room for the bust on a phone; its viewBox preserves geometry. */
+body.is-embedded .placement-controls {max-width:460px;}
+body.is-embedded .placement-view svg {height:140px;aspect-ratio:auto;}
+@media (min-width:600px) {
+  body.is-embedded .placement-view svg {height:164px;}
+}
+/* Landing page (?landing=1): no controls, hints or loading text; the host overlay owns every gesture. */
+.landing .view-controls, .landing #placement, .landing .placement-controls, .landing .source-settings,
+.landing .placement-size, .landing .placement-power, .landing #loading, .landing #hint { display:none!important; }
+.landing canvas { pointer-events:none; }
+@media (max-width:390px) { .placement-controls { margin-top:16px; } .placement-diagrams { gap:8px; } .placement-heading { margin-bottom:7px; } }

@@ -1,0 +1,194 @@
+/* InkUI light tokens (packages/ink/lib/theme/tokens.dart), light by default; dark follows the system (ColorTokens.dark) */
+/* Content page: non-purpose tokens only, no accent (a_*) tokens here (Kent, 09-04) */
+:root {
+  --bg-primary: #F5F5F5;
+  --bg-secondary: #F5F5F5;
+  --fg-primary: #3A3A3A;
+  --fg-primary-focus: #121212;
+  --fg-secondary: #6B6B6B;
+  --fg-tertiary-focus: #FFFFFF;
+  --shade: #C8C8C8; /* ink at 20% on the paper, pre-blended: nothing on the page is translucent */
+  --quiet: #8A8A8A; /* an inactive act dot: a pre-blended quiet ink, 3:1 on the paper */
+  --round: 50%;
+  --r-sm: 8px; --stroke: 4px;
+  --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #121212;
+    --bg-secondary: #121212;
+    --fg-primary: #E5E5E5;
+    --fg-primary-focus: #F5F5F5;
+    --fg-secondary: #A0A0A0;
+    --fg-tertiary-focus: #0A0A0A;
+    --shade: #3F3F3F; /* paper ink at 20% on the dark paper, pre-blended */
+    --quiet: #707070;
+    color-scheme: dark;
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--bg-primary); }
+body {
+  background: var(--bg-primary);
+  color: var(--fg-primary);
+  font-family: 'Spectral', Georgia, serif;
+  font-synthesis: weight style; /* InkUI bundles Spectral Regular only; bold and italic are synthesized, as in the app */
+  font-size: 18px;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+/* ---- one centered column: mark, headline, the view window, sign-up, footer ---- */
+.page {
+  flex: 1;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--sp-lg); /* round 9: a 24 px gutter at the least, on a phone too */
+}
+.join { margin-top: var(--sp-xl); } /* the window's bleed fades out before the sign-up */
+.demo { margin-top: var(--sp-xl); position: relative; } /* and before the headline */
+p { text-wrap: pretty; }
+a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
+a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
+.mark {
+  font-size: 18px;
+  font-weight: 700; /* titleSmall */
+  color: var(--fg-primary-focus);
+}
+.mark a { text-decoration: none; }
+.mark a:focus-visible { text-decoration: underline; text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; text-underline-offset: 0.2em; }
+.mark svg { height: 20px; width: auto; margin-right: var(--sp-sm); position: relative; top: 2px; }
+.mark .half { fill: var(--shade); }
+h1 {
+  margin-top: var(--sp-lg);
+  text-wrap: balance;
+  font-size: 36px; /* headlineLarge */
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--fg-primary-focus);
+}
+strong { font-weight: 600; }
+.point strong, .sub strong { color: var(--fg-primary-focus); }
+
+/* ---- sign-up: one row, an email rule and a button that is its own ink block ---- */
+form.signup { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--sp-md); align-items: stretch; }
+.signup input[type=email] {
+  background: transparent;
+  border: none;
+  border-bottom: var(--stroke) solid var(--fg-secondary);
+  border-radius: 0;
+  padding: var(--sp-sm) 0;
+  line-height: 1.6;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+  font-size: 18px;
+  width: 100%;
+  min-width: 0;
+  color: var(--fg-primary);
+}
+.signup input[type=email]::placeholder { color: var(--fg-secondary); opacity: 1; }
+.signup input[type=email]:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
+.signup input[type=email][aria-invalid=true] { border-bottom-color: var(--fg-primary-focus); }
+.signup-error { grid-column: 1 / -1; margin-top: var(--sp-sm); font-size: 16px; font-weight: 600; color: var(--fg-primary-focus); }
+.signup button {
+  padding: var(--sp-sm) var(--sp-md);
+  background: var(--fg-primary-focus);
+  color: var(--fg-tertiary-focus);
+  border: none;
+  border-radius: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600; /* labelLarge */
+  line-height: 1.6;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.signup button:active { background: var(--fg-primary); }
+.signup button:focus-visible { outline: var(--stroke) solid var(--fg-primary-focus); outline-offset: var(--sp-xs); }
+.signup input:-webkit-autofill { -webkit-text-fill-color: var(--fg-primary); transition: background-color 0s 600000s; }
+.signup-note { margin-top: var(--sp-sm); color: var(--fg-secondary); font-size: 16px; }
+.thanks { font-size: 18px; font-weight: 600; color: var(--fg-primary-focus); }
+footer {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--sp-lg);
+  color: var(--fg-secondary);
+  font-size: 16px;
+}
+.photog { margin-top: var(--sp-xl); } /* below the sign-up: spacing separates, no box or rule */
+.photog a:not(:focus-visible) { text-decoration-thickness: 1px; text-underline-offset: 0.2em; } /* a thin ink underline, not web chrome */
+.photog-label { font-size: 16px; color: var(--fg-secondary); } /* bodySmall */
+.photog h2 { margin-top: var(--sp-xs); font-size: 22px; font-weight: 700; line-height: 1.3; color: var(--fg-primary-focus); } /* titleMedium, well under the 36 px headline */
+.photog-body { margin-top: var(--sp-sm); font-size: 18px; line-height: 1.6; color: var(--fg-secondary); }
+footer .legal { margin-top: var(--sp-xl); } /* bodySmall, 16 px, secondary */
+footer a:focus-visible { color: var(--fg-primary-focus); }
+
+/* ---- the concept caption: plain text in the window (stage.css); the tour's pause is a hidden button (round 9) ---- */
+.caption { font-weight: 700; color: var(--fg-primary-focus); }
+.caption-still { display: none; font-weight: 700; color: var(--fg-primary-focus); }
+/* The act dots: one per act, centered under the window; the active one is big (solid ink), the rest a quiet pre-blended tone. 44 px targets. */
+.acts { display: flex; justify-content: center; margin-top: var(--sp-xs); } /* a small step below the window */
+.acts [role=radio] {
+  width: 44px; height: 44px; padding: 0; margin: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: 0; border-radius: 0;
+  -webkit-appearance: none; appearance: none;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.acts .dot {
+  display: block; width: var(--sp-sm); height: var(--sp-sm); border-radius: var(--round);
+  background: var(--quiet);
+  transition: width 300ms ease-in-out, height 300ms ease-in-out, background-color 300ms ease-in-out; /* AnimationTokens.normal, standard */
+}
+.acts [role=radio][aria-checked=true] .dot { width: var(--sp-md); height: var(--sp-md); background: var(--fg-primary-focus); }
+.acts [role=radio]:focus-visible { outline: none; }
+.acts [role=radio]:focus-visible .dot { outline: var(--stroke) solid var(--fg-primary-focus); outline-offset: var(--sp-xs); }
+/* "Pause demo" for keyboard users: no visible chrome until it has focus (WCAG 2.2.2). */
+.pause-btn {
+  position: absolute; right: 0; bottom: 0; z-index: 4;
+  width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+  background: var(--fg-primary-focus); color: var(--fg-tertiary-focus);
+  font-family: inherit; font-size: 18px; font-weight: 600; line-height: 1.6;
+  -webkit-appearance: none; appearance: none;
+}
+.pause-btn:focus, .pause-btn:focus-visible {
+  width: auto; height: auto; min-height: 44px; margin: 0; padding: var(--sp-sm) var(--sp-md); overflow: visible; clip-path: none;
+  outline: var(--stroke) solid var(--fg-primary-focus); outline-offset: var(--sp-xs);
+}/* ---- /photographers: the same column, copy in a stack ---- */
+.sub { margin-top: var(--sp-md); }
+.sub + .point, .point + .point { margin-top: var(--sp-md); }
+.join-title { margin-bottom: var(--sp-sm); font-weight: 600; color: var(--fg-primary-focus); }
+
+@media (max-width: 480px) {
+  form.signup { grid-template-columns: minmax(0, 1fr); row-gap: var(--sp-sm); }
+  .signup button { width: 100%; }
+}
+@media (min-width: 600px) {
+  .page { padding: var(--sp-xxl) var(--sp-xl) var(--sp-xl); } /* wide: the gutter and the top grow with the column */
+  footer { padding-inline: var(--sp-xl); }
+  h1 { margin-top: var(--sp-xl); }
+  .demo { margin-top: var(--sp-xxl); }
+  .join { margin-top: var(--sp-xxl); }
+}
+@media (min-width: 960px) { h1 { font-size: 48px; } }
+
+/* reduced motion: one still, and its caption names the Describe result it shows */
+.reduced .layer:not(.on) { display: none; }
+.reduced .caption, .reduced .acts, .reduced .pause-btn { display: none !important; }
+.reduced .caption-still { display: flex; }
+@media (prefers-reduced-motion: reduce) { .caption, .acts, .pause-btn { display: none !important; } .caption-still { display: flex; } }
+/* phone: the first screen ends at the fold, so the footer callout is wholly below it, never cut */
+@media (max-width: 599px) {
+  .page { min-height: 100svh; }
+  /* The phone bleed band is sp-lg (stage.css): the note under the sign-up fits the first screen. */
+  .demo, .join { margin-top: var(--sp-xl); } /* round 9: room above the window and above the sign-up */
+}

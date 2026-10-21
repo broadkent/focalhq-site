@@ -1,0 +1,128 @@
+/* ---- the view window and its bleed (tokens from landing.css) ---- */
+/* Kent's sketch (October 19, 2026): a landscape view window under the headline, no
+   border. The scenes bleed past it as in the app's labs: the lab canvases span the
+   viewport's width and run --bleed above and below the window, fading into the page's
+   paper before the headline and the sign-up. The subject is framed inside the window
+   (the page script hands the labs the window's rect in the canvas).
+   One act owns the window at a time. A layer that is not .on is hidden and no child
+   (iframe, Flutter host) can make itself visible through it: children are shown only
+   under .on. Hidden layers keep their layout so a preloading renderer sizes itself.
+   During a cross-blur both layers are .on for its length only. Everything sits on
+   the page's own paper in both themes (Kent, October 18, 2026). */
+.window {
+  --bleed: var(--sp-xxl);
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4; /* until the page script sizes it */
+  isolation: isolate;
+}
+.bleed {
+  /* Until the page script measures it: the window's own rect, no sideways bleed. */
+  --wx: 0px; --wy: var(--bleed); --ww: 100%; --wh: calc(100% - 2 * var(--bleed));
+  position: absolute; left: 0; width: 100%;
+  top: calc(-1 * var(--bleed)); bottom: calc(-1 * var(--bleed));
+  overflow: hidden;
+  /* The scene fades into the paper across the bleed bands, before any text. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--bleed), #000 calc(100% - var(--bleed)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--bleed), #000 calc(100% - var(--bleed)), transparent 100%);
+  pointer-events: none;
+}
+.layer { position: absolute; inset: 0; visibility: hidden; background: var(--bg-primary); }
+.layer.on { visibility: visible; }
+.layer iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+/* The stills and the Describe demo sit at the window, not the bleed. */
+.layer .in-window { position: absolute; left: var(--wx); top: var(--wy); width: var(--ww); height: var(--wh); display: block; }
+.layer img.poster { width: 100%; height: 100%; display: block; object-fit: cover; }
+/* Describe keeps clear of the caption band at the window's foot; its poster has the very same box, so nothing of the poster shows in the band (round 9). */
+.layer .host.in-window, #layer-describe picture.in-window { height: calc(var(--wh) - 44px - var(--sp-sm)); }
+/* The live renderer replaces its poster only when it is drawing (the same frame). */
+.layer iframe, .layer .host { visibility: hidden; background: var(--bg-primary); }
+.layer.on iframe.live, .layer.on .host.live { visibility: visible; }
+/* Landing review 3, must 1: the Describe demo takes no input (it is aria-hidden),
+   but its flutter-view sets touch-action: none and its semantics nodes take
+   pointer events, so a vertical swipe there never scrolled the page. Nothing in
+   it can be the target of a touch. */
+#describe-host, #describe-host * { pointer-events: none !important; }
+/* The drag-to-orbit input: the window only; a vertical swipe scrolls the page. */
+.overlay { position: absolute; inset: 0; z-index: 2; touch-action: pan-y; cursor: grab; }
+.overlay:active { cursor: grabbing; }
+
+/* ---- the options: top left in the window, a flat ink print (InkTermPlate on the
+   chosen one, plain serif text on the rest), 44 px targets ---- */
+.options {
+  position: absolute; left: var(--sp-md); top: var(--sp-md); z-index: 3;
+  display: flex; flex-direction: column; align-items: flex-start;
+}
+.options [role=radio] {
+  display: flex; align-items: center;
+  min-height: 44px; min-width: 44px;
+  padding: 0; margin: 0;
+  background: none; border: 0; border-radius: 0;
+  -webkit-appearance: none; appearance: none;
+  font-family: inherit; font-size: 18px; line-height: 1.6;
+  color: var(--fg-primary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+}
+.options [role=radio] span { padding: calc(1.5 * var(--sp-xs)) var(--sp-sm); } /* 6 px: the ink block clears the ascenders */
+.options [role=radio][aria-checked=true] span { background: var(--fg-primary-focus); color: var(--bg-primary); font-weight: 600; }
+.options [role=radio]:focus-visible { outline: none; }
+.options [role=radio]:focus-visible span { text-decoration: underline; text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; text-underline-offset: 0.15em; }
+
+/* ---- r10: the studio lens slider, where the options were: the value large in serif over a ruler of ticks at the
+   app's lens detents (24-200 mm); the selected detent is an ink block. Solid inks, no border, no glide, 44 px target ---- */
+.lens {
+  position: absolute; left: var(--sp-md); top: var(--sp-md); z-index: 3;
+  width: min(152px, calc(100% - 2 * var(--sp-md) - 64px)); /* clear of the zoom buttons' column on the narrowest phone */
+  color: var(--fg-primary); cursor: pointer; touch-action: pan-y;
+}
+.lens[hidden] { display: none; }
+.lens-value { font-size: 18px; line-height: 1.6; font-weight: 600; color: var(--fg-primary-focus); font-variant-numeric: tabular-nums; }
+.lens-track { position: relative; height: 44px; margin: 0 var(--sp-sm); touch-action: pan-y; }
+.lens-track i { position: absolute; top: 50%; width: 2px; height: 12px; margin: -6px 0 0 -1px; background: var(--quiet); pointer-events: none; }
+.lens-track .thumb { position: absolute; top: 50%; width: var(--stroke); height: 28px; margin: -14px 0 0 calc(var(--stroke) / -2); background: var(--fg-primary-focus); pointer-events: none; }
+.lens:focus-visible { outline: none; }
+.lens:focus-visible .lens-value { text-decoration: underline; text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; text-underline-offset: 0.15em; }
+.reduced .lens { display: none; }
+
+/* ---- the concept caption: plain text, bottom center in the window (round 9: back in the viewer, no pause glyph) ---- */
+.window .caption, .window .caption-still {
+  position: absolute; z-index: 3; bottom: 0; left: 50%; translate: -50% 0;
+  white-space: nowrap; min-height: 44px; align-items: center;
+}
+.window .caption { display: flex; }
+
+/* ---- r9: the zoom buttons, bottom right in the window (clear of the options and the
+   caption), plus over minus; Phosphor Duotone glyphs in ink, no disc, 44 px targets ---- */
+.zoom {
+  position: absolute; right: var(--sp-sm); bottom: 0; z-index: 3;
+  display: flex; flex-direction: column; gap: var(--sp-xs);
+}
+.zoom[hidden] { display: none; }
+.zoom button {
+  display: flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; padding: 0; margin: 0;
+  background: none; border: 0; border-radius: 0;
+  -webkit-appearance: none; appearance: none;
+  color: var(--fg-primary-focus); cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.zoom .zg { width: 24px; height: 24px; fill: var(--fg-primary-focus); pointer-events: none; }
+.zoom .zg .back { fill: var(--shade); }
+.zoom button:focus-visible { outline: var(--stroke) solid var(--fg-primary-focus); outline-offset: calc(-1 * var(--sp-xs)); }
+.reduced .zoom { display: none; }
+
+/* ---- phone: a narrower bleed band, so the sign-up and its note fit the first screen ---- */
+@media (max-width: 599px) {
+  .window { --bleed: var(--sp-lg); }
+}
+
+/* ---- wide: the sketch's landscape window at column width ---- */
+@media (min-width: 600px) {
+  .window { aspect-ratio: 1.55 / 1; }
+}
+
+/* ---- reduced motion: one still (the Describe result) in the window, nothing running ---- */
+.reduced .options { display: none; }
+.reduced .bleed { -webkit-mask-image: none; mask-image: none; }

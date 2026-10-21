@@ -5,170 +5,513 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Focal - learn photography</title>
 <meta name="description" content="Focal: five-minute gamified lessons that actually teach you photography.">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F5F5F5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="preload" href="assets/Spectral-Regular.woff2" as="font" type="font/woff2" crossorigin>
-<script>document.documentElement.style.backgroundSize=256/devicePixelRatio+'px'</script>
-<style>
-  /* InkUI tokens (packages/ink/lib/theme/tokens.dart). Ink and paper are the only black and white:
-     ink #121212 on paper #F5F5F5, inverted in dark (Kent, 10-17). Content page: no accent tokens (Kent, 09-04) */
-  /* Spectral Regular is the only face, as in the app (OFL: assets/Spectral-OFL.txt) */
-  @font-face {
-    font-family: 'Spectral';
-    src: url(assets/Spectral-Regular.woff2) format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: block;
-  }
-  :root {
-    color-scheme: light dark;
-    --paper: #F5F5F5;
-    --paper-tile: url(assets/paper-light.webp);
-    --fg-primary: #3A3A3A;
-    --fg-primary-focus: #121212;
-    --fg-secondary: #6B6B6B;
-    --mark-tint: #C8C8C8; /* ink at 20 percent over paper, pre-blended: no translucency */
-    --r-sm: 8px; --stroke: 4px;
-    --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #121212;
-      --paper-tile: url(assets/paper-dark.webp);
-      --fg-primary: #E5E5E5;
-      --fg-primary-focus: #F5F5F5;
-      --fg-secondary: #A0A0A0;
-      --mark-tint: #3F3F3F;
-    }
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html {
-    background: var(--paper) var(--paper-tile) 0 0 / 128px 128px repeat scroll;
-  }
-  body {
-    color: var(--fg-primary);
-    font-family: 'Spectral', Georgia, serif;
-    font-synthesis: none; /* bold is Skia's fake bold, drawn below as a text stroke */
-    font-size: 18px;
-    line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  main {
-    flex: 1;
-    width: 100%;
-    max-width: calc(34em + 2 * var(--sp-lg));
-    margin: 0 auto;
-    padding: var(--sp-xxl) var(--sp-lg);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .sub { margin-top: var(--sp-md); text-wrap: balance; }
-  .sub + .point { margin-top: var(--sp-lg); }
-  .point + .point { margin-top: var(--sp-md); }
-  .point + .signup { margin-top: var(--sp-xxl); }
-  .signup + .signup-note { margin-top: var(--sp-sm); }
-  .signup-note + .photog { margin-top: var(--sp-xl); }
-  p { text-wrap: pretty; }
-  a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; }
-  a:focus-visible { outline: none; color: var(--fg-primary-focus); text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; }
-  .mark {
-    font-size: 18px;
-    font-weight: 700; /* titleSmall */
-    color: var(--fg-primary-focus);
-  }
-  .mark svg { -webkit-text-stroke: 0; height: 20px; width: auto; margin-right: var(--sp-sm); position: relative; top: 2px; }
-  h1 { margin-top: var(--sp-xxl); }
-  h1 {
-    text-wrap: balance;
-    font-size: 28px;
-    font-weight: 700; /* titleLarge */
-    line-height: 1.25;
-    color: var(--fg-primary-focus);
-  }
-  /* Skia fake bold (SkScalerContext): frame width = size x lerp(size, 9..36 -> 1/24..1/32); 18px 0.6875px, 28px 0.9614px */
-  .mark, strong, .signup button { -webkit-text-stroke: 0.6875px; paint-order: stroke fill; }
-  h1 { -webkit-text-stroke: 0.9614px; paint-order: stroke fill; }
-  strong { font-weight: 600; }
-  .point strong, .sub strong { color: var(--fg-primary-focus); }
-  form.signup {
-    display: flex;
-    align-items: flex-end;
-  }
-  .signup input[type=email], .signup button {
-    background: transparent;
-    border: none;
-    border-bottom: var(--stroke) solid var(--fg-secondary);
-    border-radius: 0;
-    padding: var(--sp-sm) 0;
-    line-height: 1.6;
-    -webkit-appearance: none;
-    appearance: none;
-    font-family: inherit;
-    font-size: 18px;
-  }
-  .signup input[type=email] { flex: 1 1 0; min-width: 0; color: var(--fg-primary); }
-  .signup input[type=email]::placeholder { color: var(--fg-secondary); opacity: 1; }
-  .signup input[type=email]:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
-  .signup button {
-    font-weight: 600; /* labelLarge */
-    color: var(--fg-primary-focus);
-    padding-left: var(--sp-md);
-    white-space: nowrap;
-    flex: 0 0 auto;
-    cursor: pointer;
-  }
-  .signup button:hover { border-bottom-color: var(--fg-primary-focus); }
-  .signup button:focus-visible { outline: none; border-bottom-color: var(--fg-primary-focus); }
-  .signup input:-webkit-autofill { -webkit-text-fill-color: var(--fg-primary); transition: background-color 0s 600000s; }
-  .signup-note { color: var(--fg-primary); font-size: 16px; }
-  footer {
-    width: 100%;
-    max-width: calc(34 * 18px + 2 * var(--sp-lg)); /* same measure as main, whose em is 18px */
-    margin: 0 auto;
-    padding: var(--sp-lg);
-    text-align: left;
-    color: var(--fg-secondary);
-    font-size: 16px;
-  }
-  footer a:focus-visible { color: var(--fg-primary-focus); }
-  @media (max-width: 480px) {
-    footer { padding: var(--sp-lg) var(--sp-md); }
-    main { padding: var(--sp-xl) var(--sp-md); }
-  }</style>
+<link rel="preload" as="font" type="font/ttf" href="fonts/Spectral-Regular.ttf" crossorigin>
+<!-- The page paints once, in its web font, and the font never reflows it afterward (Kent, October 20, 2026: the frame jumped). The face is
+     added from script, not from CSS: it joins the document only if it is in within 2.5 s, while the body is still hidden; a font that
+     misses the deadline is never added, so the page keeps its fallback for the visit instead of swapping and re-wrapping the headline. -->
+<style>html.fonts-wait body, html.fonts-wait body * { visibility: hidden !important; }</style>
+<script>
+(function () {
+  var root = document.documentElement, done, late = false;
+  root.classList.add('fonts-wait');
+  window.focalFontReady = new Promise(function (r) { done = r; });
+  // The page must never stay blank: the page script lifts this after its one layout, and anything that stops it (a failed
+  // import or fetch, an uncaught error) lifts it here. 3 s is past the 2.5 s font cap, so a slow font still lays out once.
+  var lift = function () { root.classList.remove('fonts-wait'); };
+  setTimeout(lift, 3000);
+  window.addEventListener('error', lift);
+  window.addEventListener('unhandledrejection', lift);
+  document.addEventListener('error', function (e) { if (e.target && e.target.tagName === 'SCRIPT') lift(); }, true); // a script or module that fails to load does not reach window
+  if (!window.FontFace || !document.fonts) { done(); return; }
+  var face = new FontFace('Spectral', "url('fonts/Spectral-Regular.ttf') format('truetype')", { style: 'normal', weight: '400' });
+  var timer = setTimeout(function () { late = true; done(); }, 2500);
+  face.load().then(function () { if (late) return; clearTimeout(timer); document.fonts.add(face); done(); }, function () { clearTimeout(timer); done(); });
+}());
+</script>
+<link rel="stylesheet" href="landing.css">
+<link rel="stylesheet" href="stage.css">
 </head>
 <body>
-<main>
-  <div class="mark"><svg viewBox="0 0 184 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M52 61a40 40 0 0 0 80 0Z" fill="var(--mark-tint)"/><g stroke="currentColor" stroke-width="14" fill="none"><circle cx="92" cy="61" r="47"/><line x1="15" y1="61" x2="169" y2="61" stroke-linecap="round"/></g></svg>focal.</div>
-  <h1>Like Duolingo, but for photography.</h1>
-  <p class="sub">Five-minute lessons that actually teach you photography.</p>
-  <p class="point"><strong>Learn by doing.</strong> Slide the aperture, freeze the motion, shape the light.</p>
-  <p class="point"><strong>It learns you back.</strong> A path from what you know to what you don&rsquo;t.</p>
-  <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST">
-    <input type="hidden" name="_subject" value="Focal launch list signup">
-    <input type="hidden" name="_next" value="https://focalhq.io/?thanks=1">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="email" name="email" placeholder="Email" required aria-label="Email address">
-    <button type="submit">Get launch updates</button>
-  </form>
-  <p class="signup-note" id="signup-note">Coming this winter. One email when we launch.</p>
-  <p class="photog"><a href="/photographers">Photographers:</a> teach with your work. Get&nbsp;credit. Get&nbsp;paid.</p>
-</main>
+<div class="page">
+  <header class="head">
+    <div class="mark"><svg viewBox="0 0 184 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="half" d="M52 61a40 40 0 0 0 80 0Z"/><g stroke="currentColor" stroke-width="14" fill="none"><circle cx="92" cy="61" r="47"/><line x1="15" y1="61" x2="169" y2="61" stroke-linecap="round"/></g></svg>focal</div>
+    <h1>Like Duolingo, but for photography.</h1>
+  </header>
+  <section class="demo" aria-label="Focal preview">
+    <!-- The view window (Kent's sketch, October 19, 2026): no border; the scenes bleed past it, as in the app's labs. -->
+    <div class="window" id="stage">
+      <div class="bleed" id="bleed">
+        <!-- Each act's still sits at the window in its layer until its renderer draws the same frame. -->
+        <div class="layer on" id="layer-camera">
+          <picture class="in-window">
+            <source media="(min-width: 600px) and (prefers-color-scheme: dark)" srcset="posters/camera-wide-dark.6a1036d4e7.webp">
+            <source media="(min-width: 600px)" srcset="posters/camera-wide.632c5ba794.webp">
+            <source media="(prefers-color-scheme: dark)" srcset="posters/camera-phone-dark.b3c220b62d.webp">
+            <img class="poster" src="posters/camera-phone.f29d8ea3c0.webp" alt="" width="716" height="954">
+          </picture>
+          <iframe id="frame-camera" title="Interactive 3D camera" tabindex="-1" data-src="/teaching3d/index.html?embedded=1&amp;landing=1"></iframe>
+        </div>
+        <div class="layer" id="layer-studio">
+          <picture class="in-window">
+            <source media="(min-width: 600px) and (prefers-color-scheme: dark)" srcset="posters/studio-wide-dark.a2b8dae006.webp">
+            <source media="(min-width: 600px)" srcset="posters/studio-wide.e7094f8e58.webp">
+            <source media="(prefers-color-scheme: dark)" srcset="posters/studio-phone-dark.47bc939326.webp">
+            <img class="poster" src="posters/studio-phone.38147c627f.webp" alt="" width="716" height="954">
+          </picture>
+          <iframe id="frame-studio" title="Interactive 3D lighting studio" tabindex="-1" data-src="/teaching3d/lighting.html?embedded=1&amp;landing=1"></iframe>
+        </div>
+        <div class="layer" id="layer-describe">
+          <picture class="in-window">
+            <source media="(min-width: 600px) and (prefers-color-scheme: dark)" srcset="posters/describe-wide-dark.fecce03ddf.webp">
+            <source media="(min-width: 600px)" srcset="posters/describe-wide.0c543a1933.webp">
+            <source media="(prefers-color-scheme: dark)" srcset="posters/describe-phone-dark.3f0e257c92.webp">
+            <img class="poster" src="posters/describe-phone.6fcfedd1e7.webp" alt="" width="684" height="730">
+          </picture>
+          <div class="host in-window" id="describe-host" style="touch-action:pan-y"></div>
+        </div>
+      </div>
+      <div class="overlay" id="overlay-camera"></div>
+      <div class="overlay" id="overlay-studio"></div>
+      <div class="options" id="options" role="radiogroup" aria-label="Camera" hidden></div>
+      <!-- r10 (Kent: "a slider with a lens mm there. 24-200"): the Studio's options are this lens slider, the app's lens ruler (detents 24-200 mm, the value large in serif). -->
+      <div class="lens" id="lens" role="slider" tabindex="0" aria-label="Focal length" aria-orientation="horizontal" aria-valuemin="24" aria-valuemax="200" aria-valuenow="50" aria-valuetext="50 mm" hidden>
+        <p class="lens-value" aria-hidden="true"><span id="lens-mm">50</span> mm</p>
+        <div class="lens-track" id="lens-track" aria-hidden="true"></div>
+      </div>
+      <!-- r9 (Kent: "Add zoom controls for the labs."): bottom right in the window, Camera and Studio only. Phosphor MagnifyingGlassPlus/Minus, Duotone. -->
+      <div class="zoom" id="zoom" hidden>
+        <button type="button" data-dir="1" aria-label="Zoom in"><svg class="zg" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path class="back" d="M192,112a80,80,0,1,1-80-80A80,80,0,0,1,192,112Z"/><path d="M152,112a8,8,0,0,1-8,8H120v24a8,8,0,0,1-16,0V120H80a8,8,0,0,1,0-16h24V80a8,8,0,0,1,16,0v24h24A8,8,0,0,1,152,112Zm77.66,117.66a8,8,0,0,1-11.32,0l-50.06-50.07a88.11,88.11,0,1,1,11.31-11.31l50.07,50.06A8,8,0,0,1,229.66,229.66ZM112,184a72,72,0,1,0-72-72A72.08,72.08,0,0,0,112,184Z"/></svg></button>
+        <button type="button" data-dir="-1" aria-label="Zoom out"><svg class="zg" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path class="back" d="M192,112a80,80,0,1,1-80-80A80,80,0,0,1,192,112Z"/><path d="M152,112a8,8,0,0,1-8,8H80a8,8,0,0,1,0-16h64A8,8,0,0,1,152,112Zm77.66,117.66a8,8,0,0,1-11.32,0l-50.06-50.07a88.11,88.11,0,1,1,11.31-11.31l50.07,50.06A8,8,0,0,1,229.66,229.66ZM112,184a72,72,0,1,0-72-72A72.08,72.08,0,0,0,112,184Z"/></svg></button>
+      </div>
+      <p class="caption" id="caption" aria-live="off">Camera</p>
+      <p class="caption-still" id="caption-still">Describe</p>
+    </div>
+    <!-- The three acts (round 9): one dot each, the active one big; a tap moves to that act. -->
+    <div class="acts" id="acts" role="radiogroup" aria-label="Demo">
+      <button type="button" role="radio" data-act="camera" aria-label="Camera" aria-checked="true" tabindex="0"><span class="dot"></span></button>
+      <button type="button" role="radio" data-act="studio" aria-label="Studio" aria-checked="false" tabindex="-1"><span class="dot"></span></button>
+      <button type="button" role="radio" data-act="describe" aria-label="Feel" aria-checked="false" tabindex="-1"><span class="dot"></span></button>
+    </div>
+    <button type="button" class="pause-btn" id="pause-btn" aria-pressed="false">Pause demo</button>
+  </section>
+  <div class="join">
+    <form class="signup" action="https://formsubmit.co/hello@focalhq.io" method="POST" novalidate>
+      <input type="hidden" name="_subject" value="Focal launch list signup">
+      <input type="hidden" name="_next" value="https://focalhq.io/?thanks=1">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="email" name="email" placeholder="Email" required autocomplete="email" aria-label="Email address" aria-describedby="signup-error signup-note">
+      <button type="submit">Get launch updates</button>
+      <p class="signup-error" id="signup-error" role="alert" hidden>Enter a valid email.</p>
+    </form>
+    <p class="signup-note" id="signup-note">Coming this winter. One email at launch.</p>
+    <p class="thanks" id="thanks" hidden>You&rsquo;re on the list. Talk soon.</p>
+  </div>
+</div>
 <footer>
-  <p>&copy; 2026 Focal &middot; <a href="mailto:hello@focalhq.io">hello@focalhq.io</a> &middot; Duolingo is a trademark of Duolingo, Inc. Focal is not affiliated with or endorsed by Duolingo.</p>
+  <!-- For photographers (round 9): Kent's words, verbatim. -->
+  <section class="photog" aria-labelledby="photog-title">
+    <p class="photog-label">For photographers</p>
+    <h2 id="photog-title"><a href="/photographers">Join the team</a></h2>
+    <p class="photog-body">Our team members earn a percent of every subscription that uses their advocate code.</p>
+  </section>
+  <p class="legal">Duolingo is a trademark of Duolingo, Inc. Focal is not affiliated with or endorsed by Duolingo.</p>
 </footer>
-<script>
-  if (new URLSearchParams(location.search).has('thanks')) {
-    var n = document.getElementById('signup-note');
-    n.textContent = "You’re on the list. Talk soon.";
-    n.style.color = 'var(--fg-primary)';
-    n.style.fontSize = '18px';
-    n.style.marginTop = 'var(--sp-xxl)';
-    document.querySelector('form.signup').style.display = 'none';
+<script src="signup.js"></script><script type="module">
+  import { Director, createFrameBridge } from './director.js';
+  import { OPTIONS, K, lensAtFraction, lensFraction, lensText } from './timeline.js';
+  import { GestureOverlay } from './gesture_overlay.js';
+
+  // The theme the app passes to the 3D pages, light or dark with the system (pinned to the app by test/regression/landing_theme_params_test.dart).
+  // The stage is the page's paper in both themes (Kent, October 18, 2026): the labs take the dark theme on a dark
+  // page, as the app's do, and Describe and the posters (picture sources) follow the system too.
+  const STAGE_FOLLOWS_SYSTEM = true;
+  const dark = STAGE_FOLLOWS_SYSTEM && matchMedia('(prefers-color-scheme: dark)').matches;
+  // The theme only matters when a lab loads, so the first layout never waits on it; a failed fetch leaves the labs' own default.
+  let THEME = {};
+  const themeReady = fetch(dark ? 'teaching3d_theme_dark.json' : 'teaching3d_theme.json').then((r) => r.json()).then((t) => { THEME = t; }, () => {});
+  const $ = (id) => document.getElementById(id);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const stage = $('stage');
+  const layers = { camera: $('layer-camera'), studio: $('layer-studio'), describe: $('layer-describe') };
+  const frames = { camera: $('frame-camera'), studio: $('frame-studio') };
+  const ready = { camera: false, studio: false };
+  const pollers = {};
+  if (reduced) document.documentElement.classList.add('reduced');
+  // The Describe demo is a picture of the app: its Flutter view is never in the page's accessibility tree.
+  $('describe-host').setAttribute('aria-hidden', 'true');
+  const bridges = {
+    camera: createFrameBridge(frames.camera, 'camera'),
+    lighting: createFrameBridge(frames.studio, 'lighting'),
+  };
+  const director = new Director({ bridges, reducedMotion: reduced });
+
+  // ---- the view window (Kent's sketch): landscape at column width on wide screens; on a
+  // phone column width and as tall as the first screen allows, 3:4 at most, square at least.
+  // The labs paint the whole bleed (the viewport's width, --bleed above and below) and
+  // frame their subject in the window's rect inside it.
+  const bleed = $('bleed');
+  const joinEl = document.querySelector('.join');
+  const wide = matchMedia('(min-width: 600px)');
+  const WIDE_ASPECT = 1.55;
+  let laidWidth = 0;
+  const layout = (force = false) => {
+    const w = stage.clientWidth;
+    if (!w) return;
+    const vw = document.documentElement.clientWidth;
+    // A phone's toolbar hides and shows on scroll (a resize): the window keeps its height unless the width moved.
+    if (!force && w === laidWidth && !wide.matches) return;
+    laidWidth = w;
+    const top = stage.getBoundingClientRect().top + scrollY;
+    // Round 9: the window gives up height (down to 0.9 of its width) so the act dots, the caption and the
+    // sign-up still start on the first screen; past that, breathing room wins over the fold.
+    const below = joinEl.getBoundingClientRect().bottom - stage.getBoundingClientRect().bottom;
+    const h = wide.matches ? Math.round(w / WIDE_ASPECT) : Math.round(Math.min(w * 4 / 3, Math.max(w * 0.9, innerHeight - top - below - 16)));
+    stage.style.height = `${h}px`;
+    const left = stage.getBoundingClientRect().left;
+    const pad = parseFloat(getComputedStyle(stage).getPropertyValue('--bleed')) || 0;
+    bleed.style.left = `${-left}px`;
+    bleed.style.width = `${vw}px`;
+    bleed.style.setProperty('--wx', `${left}px`);
+    bleed.style.setProperty('--wy', `${pad}px`);
+    bleed.style.setProperty('--ww', `${w}px`);
+    bleed.style.setProperty('--wh', `${h}px`);
+    const bh = h + 2 * pad;
+    director.setBox({ x: left / vw, y: pad / bh, width: w / vw, height: h / bh }, w / h);
+  };
+  try { layout(true); } catch (e) { console.error(e); }
+  addEventListener('resize', () => layout());
+  // The first paint waits for the serif (the head script adds it, or gives up at 2.5 s and keeps the fallback): laid out once.
+  (window.focalFontReady ?? Promise.resolve()).then(() => { try { layout(true); } finally { document.documentElement.classList.remove('fonts-wait'); } });
+
+  // ---- the options: a single-select radio group, top left in the window (Kent's sketch).
+  // A tap applies at once; the tour runs on; the choice holds for the visit.
+  const optionsEl = $('options');
+  const lensEl = $('lens');
+  let optionsAct = null;
+  const renderOptions = (act) => {
+    optionsAct = act;
+    lensEl.hidden = act !== 'studio';
+    const spec = act && OPTIONS[act];
+    if (!spec) { optionsEl.hidden = true; optionsEl.replaceChildren(); return; }
+    optionsEl.setAttribute('aria-label', spec.label);
+    const chosen = director.choice[act];
+    optionsEl.replaceChildren(...spec.items.map(([value, text]) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('role', 'radio');
+      b.dataset.value = value;
+      b.setAttribute('aria-checked', String(value === chosen));
+      b.tabIndex = value === chosen ? 0 : -1;
+      const span = document.createElement('span');
+      span.textContent = text;
+      b.append(span);
+      return b;
+    }));
+    optionsEl.hidden = false;
+  };
+  const reflectChoice = () => {
+    if (!optionsAct) return;
+    const chosen = director.choice[optionsAct];
+    for (const b of optionsEl.querySelectorAll('[role=radio]')) {
+      const on = b.dataset.value === chosen;
+      b.setAttribute('aria-checked', String(on));
+      b.tabIndex = on ? 0 : -1;
+    }
+  };
+  optionsEl.addEventListener('click', (e) => {
+    const b = e.target.closest?.('[role=radio]');
+    if (b && optionsAct) director.choose(optionsAct, b.dataset.value);
+  });
+  optionsEl.addEventListener('keydown', (e) => {
+    const keys = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1, Home: 'first', End: 'last' };
+    const step = keys[e.key];
+    if (step === undefined || !optionsAct) return;
+    e.preventDefault();
+    const items = [...optionsEl.querySelectorAll('[role=radio]')];
+    const i = Math.max(0, items.indexOf(document.activeElement));
+    const next = step === 'first' ? 0 : step === 'last' ? items.length - 1 : (i + step + items.length) % items.length;
+    director.choose(optionsAct, items[next].dataset.value);
+    items[next].focus();
+  });
+  director.on('choice', reflectChoice);
+
+  // ---- r10: the studio lens slider. Ticks at the app's lens detents (24, 35, 50, 85, 135, 200 mm), evenly spaced as
+  // InkRuler spaces them; the ticks are plain marks that never pull; a drag or arrow key sets any whole mm, 24-200,
+  // and sends the lab's focalLength at once (no glide), one command per frame.
+  // The tour never touches it; the visitor's lens holds for the act and resets with the next loop.
+  const lensTrack = $('lens-track');
+  const detents = K.LENS_DETENTS;
+  const lensThumb = document.createElement('b');
+  lensThumb.className = 'thumb';
+  lensTrack.append(...detents.map((mm, i) => { const t = document.createElement('i'); t.style.left = `${(i / (detents.length - 1)) * 100}%`; return t; }), lensThumb);
+  const reflectLens = () => {
+    lensThumb.style.left = `${lensFraction(director.lens) * 100}%`;
+    $('lens-mm').textContent = String(Math.round(director.lens));
+    lensEl.setAttribute('aria-valuenow', String(Math.round(director.lens)));
+    lensEl.setAttribute('aria-valuetext', lensText(director.lens));
+  };
+  // Continuous: the value follows the pointer with no snapping. Moves coalesce to one lab command per animation frame.
+  let lensWant = null, lensFrame = 0;
+  const lensFlush = () => {
+    lensFrame = 0;
+    if (lensWant !== null) director.setLens(lensWant);
+    lensWant = null;
+  };
+  const lensAt = (clientX) => {
+    const r = lensTrack.getBoundingClientRect();
+    lensWant = lensAtFraction((clientX - r.left) / r.width);
+    if (!lensFrame) lensFrame = requestAnimationFrame(lensFlush);
+  };
+  let lensPointer = null;
+  lensEl.addEventListener('pointerdown', (e) => {
+    if (!lensTrack.contains(e.target)) return;
+    lensPointer = e.pointerId;
+    lensTrack.setPointerCapture?.(e.pointerId);
+    lensAt(e.clientX);
+  });
+  lensEl.addEventListener('pointermove', (e) => { if (e.pointerId === lensPointer) lensAt(e.clientX); });
+  const lensEnd = (e) => {
+    if (e.pointerId !== lensPointer) return;
+    lensPointer = null;
+    cancelAnimationFrame(lensFrame);
+    lensFlush();
+  };
+  lensEl.addEventListener('pointerup', lensEnd);
+  lensEl.addEventListener('pointercancel', lensEnd);
+  lensEl.addEventListener('keydown', (e) => {
+    const big = e.shiftKey ? 10 : 1;
+    const to = { ArrowRight: director.lens + big, ArrowUp: director.lens + big, ArrowLeft: director.lens - big, ArrowDown: director.lens - big, Home: detents[0], End: detents[detents.length - 1] }[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    director.setLens(to);
+  });
+  director.on('lens', reflectLens);
+  reflectLens();
+
+  // ---- r9: the zoom buttons, bottom right in the window while a lab's act owns it (not Describe).
+  // A tap glides the lab's view one step; the tour runs on; each lab keeps its zoom for the visit.
+  const zoomEl = $('zoom');
+  zoomEl.addEventListener('click', (e) => {
+    const b = e.target.closest?.('button[data-dir]');
+    if (b && director.options) director.zoomBy(director.options, Number(b.dataset.dir));
+  });
+  director.on('options', ({ act }) => { zoomEl.hidden = !act; });
+
+  const frameUrl = (f) => {
+    const [base, query] = f.dataset.src.split('?');
+    const q = new URLSearchParams(query);
+    for (const [k, v] of Object.entries(THEME)) q.set(k, v);
+    return `${base}?${q}`;
+  };
+  const loaded = { camera: false, studio: false };
+  const load = (name) => {
+    loaded[name] = true;
+    ready[name] = false;
+    frames[name].classList.remove('live');
+    bridgeOf[name]?.expectReload?.();
+    director.primeOnReady(name); // r9: an act dot's load too (not only the preload cue)
+    clearTimeout(posedTimers[name]); posedTimers[name] = null;
+    themeReady.then(() => { if (loaded[name]) frames[name].src = frameUrl(frames[name]); });
+    // The renderer announces state only on change, so a page that finished before the first message is missed: ask until it says ready.
+    clearInterval(pollers[name]);
+    let tries = 0;
+    pollers[name] = setInterval(() => {
+      if (ready[name] || ++tries > 200) return clearInterval(pollers[name]);
+      bridgeOf[name]?.send('getState');
+    }, 300);
+  };
+  const unload = (name) => {
+    loaded[name] = false;
+    ready[name] = false;
+    clearTimeout(posedTimers[name]); posedTimers[name] = null;
+    frames[name].classList.remove('live');
+    frames[name].src = 'about:blank';
+  };
+
+  const bridgeOf ={ camera: bridges.camera, studio: bridges.lighting };
+  const waiters = { camera: new Set(), studio: new Set() };
+  // r9 (Kent: "a flicker jump at the very beginning of the camera lab"): the camera says "ready" on its first
+  // frame, its own default view, before the director's prime lands; the poster gives way only once a frame in
+  // the primed pose is drawn (posed), or after POSED_WAIT_MS if a lab never says so.
+  const POSED_WAIT_MS = 1500; // domain: landing poster hand-over fallback
+  const goLive = (name) => {
+    if (ready[name]) return;
+    ready[name] = true;
+    frames[name].classList.add('live'); // the poster is the same frame; swap without a fade
+    for (const fn of [...waiters[name]]) fn();
+    waiters[name].clear();
+  };
+  const posedTimers = {};
+  for (const [name, b] of Object.entries(bridgeOf)) {
+    b.onState((s) => {
+      if (!s?.ready || ready[name]) return;
+      if (!('posed' in s) || s.posed) { clearTimeout(posedTimers[name]); posedTimers[name] = null; goLive(name); return; }
+      posedTimers[name] ??= setTimeout(() => { posedTimers[name] = null; goLive(name); }, POSED_WAIT_MS);
+    });
   }
+  const whenReady = (name, fn) => (ready[name] ? fn() : waiters[name].add(fn));
+
+  const overlays = {
+    camera: new GestureOverlay({ element: $('overlay-camera'), lab: 'camera', bridge: bridges.camera, director }),
+    studio: new GestureOverlay({ element: $('overlay-studio'), lab: 'studio', bridge: bridges.lighting, director }),
+  };
+
+  if (reduced) {
+    // one still, no renderers: the settled Describe result stands for the loop
+    layers.camera.classList.remove('on');
+    layers.describe.classList.add('on');
+  } else {
+    load('camera');
+    // ---- transient cross-blur: filter + opacity, ending at opacity 1 / no filter ----
+    const BLUR = 'blur(14px)';
+    const run = (el, from, to, ms) => {
+      if (!el.animate) return Promise.resolve();
+      return el.animate(
+        [{ filter: from.f, opacity: from.o }, { filter: to.f, opacity: to.o }],
+        { duration: ms, easing: 'ease-in-out' },
+      ).finished.catch(() => {});
+    };
+    let current = 'camera';
+    const show = (name) => { layers[name].classList.add('on'); };
+    const swapTo = async (to, ms) => {
+      const from = current;
+      current = to;
+      if (from === to) return;
+      show(to);
+      layers[to].style.opacity = '';
+      const out = run(layers[from], { f: 'blur(0px)', o: 1 }, { f: BLUR, o: 0 }, ms);
+      const inn = run(layers[to], { f: BLUR, o: 0 }, { f: 'blur(0px)', o: 1 }, ms);
+      await Promise.all([out, inn]);
+      if (current !== from) layers[from].classList.remove('on');
+    };
+    const hold = (key, name) => {
+      if (ready[name]) return;
+      director.block(key);
+      whenReady(name, () => director.unblock(key));
+    };
+
+    // ---- the concept caption (bottom center) and the options (top left) ----
+    const caption = $('caption');
+    director.on('caption', async ({ text }) => {
+      if (caption.textContent === text) return;
+      await run(caption, { f: 'blur(0px)', o: 1 }, { f: 'blur(6px)', o: 0 }, 220);
+      caption.textContent = text;
+      run(caption, { f: 'blur(6px)', o: 0 }, { f: 'blur(0px)', o: 1 }, 260);
+    });
+    director.on('options', async ({ act }) => {
+      // The options change with the act's cross-blur; Describe has none.
+      const shown = [optionsEl, lensEl].find((el) => !el.hidden);
+      if (shown) await run(shown, { f: 'blur(0px)', o: 1 }, { f: 'blur(6px)', o: 0 }, 300);
+      if (director.options !== act) return;
+      renderOptions(act);
+      if (act) run(act === 'studio' ? lensEl : optionsEl, { f: 'blur(6px)', o: 0 }, { f: 'blur(0px)', o: 1 }, 400);
+    });
+
+    // ---- transitions and loading cues ----
+    let describeDone = true;
+    director.on('transition', ({ to, from, ms }) => {
+      if (to === 'studio') hold('studio-wait', 'studio');
+      if (to === 'camera') hold('camera-wait', 'camera');
+      const go = () => swapTo(to, ms ?? 1000);
+      if (from === 'describe' && !describeDone) {
+        // the Flutter run is the beat boundary: wait (clock held) up to 8 s for onComplete
+        director.block('describe-run');
+        const end = () => { clearTimeout(cap); director.unblock('describe-run'); go(); };
+        const cap = setTimeout(() => { window.focalDescribeDemo.onComplete = null; end(); }, 8000);
+        window.focalDescribeDemo.onComplete = () => { describeDone = true; end(); };
+      } else go();
+    });
+    director.on('preload', ({ target }) => { if (target === 'describe') loadDescribe(); else load(target); });
+    director.on('unload', ({ target }) => { if (target === 'camera') unload('camera'); });
+
+    // ---- Describe: the Flutter demo is mounted in #describe-host on the preload cue; until it is ready (or if it fails) the still poster stays ----
+    let describeLoading = false;
+    const loadDescribe = async () => {
+      if (describeLoading) return;
+      describeLoading = true;
+      try {
+        const base = '/describe/';
+        // Reuse the build's own config (engine revision, build list) from its bootstrap.
+        const boot = await (await fetch(base + 'flutter_bootstrap.js')).text();
+        const found = /_flutter\.buildConfig\s*=\s*(\{.*?\});/s.exec(boot);
+        if (!found) throw new Error('no buildConfig');
+        await new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = base + 'flutter.js';
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.append(s);
+        });
+        window._flutter.buildConfig = JSON.parse(found[1]);
+        await window._flutter.loader.load({
+          config: { hostElement: $('describe-host'), entrypointBaseUrl: base, assetBase: base, canvasKitBaseUrl: base + 'canvaskit/' },
+        });
+      } catch (error) {
+        console.warn('Describe demo unavailable; keeping the still.', error);
+      }
+    };
+    director.on('describe', ({ phase }) => {
+      const d = window.focalDescribeDemo;
+      if (!d?.ready) return;
+      $('describe-host').classList.add('live');
+      if (phase === 'photo') {
+        describeDone = false;
+        d.onComplete = () => { describeDone = true; };
+        d.restart?.();
+      } else if (phase === 'reading') d.play?.();
+    });
+
+    // ---- the act dots (round 9): the active act's dot is big; a tap moves to that act's start ----
+    const actsEl = $('acts');
+    const actBtns = [...actsEl.querySelectorAll('[role=radio]')];
+    const reflectAct = (act) => {
+      for (const b of actBtns) {
+        const on = b.dataset.act === act;
+        b.setAttribute('aria-checked', String(on));
+        b.tabIndex = on ? 0 : -1;
+      }
+    };
+    director.on('act', ({ act }) => reflectAct(act));
+    let seeking = 0;
+    const withTimeout = (p, ms) => Promise.race([p, new Promise((r) => setTimeout(r, ms))]);
+    const goAct = async (act) => {
+      if (act === director.act) return;
+      const mine = ++seeking;
+      // The act's renderer must be loaded and ready before the jump, so its opening commands land.
+      if (act === 'describe') {
+        loadDescribe();
+        while (!window.focalDescribeDemo?.ready && mine === seeking) await new Promise((r) => setTimeout(r, 100));
+      } else {
+        const name = act;
+        if (!loaded[name]) load(name);
+        if (!ready[name]) await withTimeout(new Promise((r) => whenReady(name, r)), 8000);
+      }
+      if (mine === seeking) director.seekToAct(act);
+    };
+    actsEl.addEventListener('click', (e) => {
+      const b = e.target.closest?.('[role=radio]');
+      if (b) goAct(b.dataset.act);
+    });
+    actsEl.addEventListener('keydown', (e) => {
+      const keys = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1, Home: 'first', End: 'last' };
+      const step = keys[e.key];
+      if (step === undefined) return;
+      e.preventDefault();
+      const i = Math.max(0, actBtns.indexOf(document.activeElement));
+      const next = step === 'first' ? 0 : step === 'last' ? actBtns.length - 1 : (i + step + actBtns.length) % actBtns.length;
+      actBtns[next].focus();
+      goAct(actBtns[next].dataset.act);
+    });
+
+    director.observe(stage);
+    hold('boot', 'camera');
+    director.play();
+  }
+  window.landingDirector = director; // debugging and tests
 </script>
 </body>
 </html>

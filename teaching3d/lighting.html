@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Light direction · Focal</title>
+<script>document.documentElement.classList.toggle('embedded',new URLSearchParams(location.search).get('embedded')==='1');</script>
+<link rel="icon" href="../focal-mark-favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="scene.css">
+<link rel="stylesheet" href="lighting_controls.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.f231b18ca7.js"}}</script>
+<!-- The whole module graph and the default bust mesh start downloading now. Found by parsing,
+     the graph is four round trips deep and the mesh waits for every script to evaluate.
+     web_prefetch.dart keeps the same list for the Lab page (web_prefetch_lists_test). -->
+<link rel="modulepreload" href="./vendor/three.module.min.f231b18ca7.js">
+<link rel="modulepreload" href="./vendor/three.core.min.f231b18ca7.js">
+<link rel="modulepreload" href="./vendor/OrbitControls.f231b18ca7.js">
+<link rel="modulepreload" href="./vendor/GLTFLoader.f231b18ca7.js">
+<link rel="modulepreload" href="./vendor/meshopt_decoder.f231b18ca7.js">
+<link rel="modulepreload" href="./vendor/BufferGeometryUtils.f231b18ca7.js">
+<link rel="modulepreload" href="./lighting.js">
+<link rel="modulepreload" href="./bust.js">
+<link rel="modulepreload" href="./bust_models.js">
+<link rel="modulepreload" href="./area_light.js">
+<link rel="modulepreload" href="./lighting_controls.js">
+<link rel="modulepreload" href="./lighting_session.js">
+<link rel="modulepreload" href="./lighting_orbit_in.js">
+<link rel="modulepreload" href="./source_occlusion.js">
+<link rel="modulepreload" href="./host_bridge.js">
+<link rel="modulepreload" href="./scene_theme.js">
+<link rel="modulepreload" href="./lighting_camera.js">
+<link rel="modulepreload" href="./lighting_optics.js">
+<link rel="modulepreload" href="./lighting_meter.js">
+<link rel="modulepreload" href="./lighting_backdrop.js">
+<link rel="modulepreload" href="./header_luminance.js">
+<link rel="modulepreload" href="./auto_exposure.js">
+<link rel="modulepreload" href="./auto_step.js">
+<link rel="modulepreload" href="./lighting_shading.js">
+<link rel="modulepreload" href="./lighting_effects.js">
+<link rel="modulepreload" href="./framing_blend.js">
+<link rel="modulepreload" href="./lighting_quality.js">
+<link rel="modulepreload" href="./lighting_sheet_window.js">
+<link rel="modulepreload" href="./lighting_drag_render.js">
+<link rel="modulepreload" href="./lod_decimate.js">
+<link rel="modulepreload" href="./pose_glide.js">
+<link rel="preload" href="./models/vitruvian-study.9b8d19edf7.glb" as="fetch" crossorigin>
+</head><body class="lighting-study"><main>
+<div id="stage" role="region" aria-label="Monochrome bust with interactive lighting">
+  <div class="view-controls" aria-label="View controls"><button id="front" disabled>Front</button><button id="print" aria-pressed="true" disabled>Print</button><button id="smooth" aria-pressed="false" disabled>Smooth</button></div>
+  <p id="loading" role="status">Loading the lighting study…</p>
+</div>
+<section id="placement" aria-label="Light placement controls"></section></main>
+<script type="module">import('./lighting.js').catch(error=>{
+  document.querySelector('#loading').textContent='The lighting study could not load. Reload to try again.';
+  console.error(error);
+});</script>
+</body></html>

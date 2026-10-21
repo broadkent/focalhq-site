@@ -1,0 +1,2 @@
+/* Spectral Regular, the file InkUI bundles: preloaded, no blank wait past 100 ms, swaps in only if it is late */
+@font-face { font-family: 'Spectral'; font-style: normal; font-weight: 400; font-display: fallback; src: url('fonts/Spectral-Regular.ttf') format('truetype'); }

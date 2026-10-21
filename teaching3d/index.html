@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inside a camera · Focal</title>
+  <script>{const q=new URLSearchParams(location.search),c=document.documentElement.classList;c.toggle('embedded',q.get('embedded')==='1');c.toggle('demo',['shutter','iso','shutter-lesson','iso-lesson','balance-lesson'].includes(q.get('demo')));}</script>
+  <link rel="icon" href="../focal-mark-favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="scene.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.min.f231b18ca7.js"}}</script>
+  <!-- Fetch the whole module graph in parallel from the start; discovered only by parsing,
+       scene.js, three.module and three.core cost one round trip each in sequence. -->
+  <link rel="modulepreload" href="./vendor/three.module.min.f231b18ca7.js">
+  <link rel="modulepreload" href="./vendor/three.core.min.f231b18ca7.js">
+  <link rel="modulepreload" href="./vendor/OrbitControls.f231b18ca7.js">
+  <link rel="modulepreload" href="./scene.js">
+  <link rel="modulepreload" href="./capture.js">
+  <link rel="modulepreload" href="./parts.js">
+  <link rel="modulepreload" href="./highlight_fader.js">
+  <link rel="modulepreload" href="./lens_assembly.js">
+  <link rel="modulepreload" href="./camera_layout.js">
+  <link rel="modulepreload" href="./camera_print_material.js">
+  <link rel="modulepreload" href="./scene_dissolve.js">
+  <link rel="modulepreload" href="./dslr_variant.js">
+  <link rel="modulepreload" href="./film_variant.js">
+  <link rel="modulepreload" href="./film_transport.js">
+  <link rel="modulepreload" href="./sensor_exposure_material.js">
+  <link rel="modulepreload" href="./sensor_texture.js">
+  <link rel="modulepreload" href="./host_bridge.js">
+  <link rel="modulepreload" href="./scene_theme.js">
+  <link rel="modulepreload" href="./camera_interactions.js">
+  <link rel="modulepreload" href="./lens_mount_cycle.js">
+  <link rel="modulepreload" href="./lens_pick.js">
+  <link rel="modulepreload" href="./concept_demo.js">
+  <link rel="modulepreload" href="./shutter_side_view.js">
+  <link rel="modulepreload" href="./balance_lesson.js">
+  <link rel="modulepreload" href="./part_names.js">
+  <link rel="modulepreload" href="./iris_mechanism.js">
+  <link rel="modulepreload" href="./film_stock_material.js">
+<link rel="modulepreload" href="./header_luminance.js">
+  <link rel="modulepreload" href="./pose_glide.js">
+  <link rel="modulepreload" href="./framing_blend.js">
+</head>
+<body>
+  <main>
+    <div id="stage" role="region" aria-label="Interactive 3D camera">
+      <p id="loading" role="status">Loading the camera…</p>
+      <div class="view-controls" aria-label="Camera viewing angle">
+        <button id="front" aria-label="Front view">Front</button><button id="angle" aria-label="Three-quarter view">Angle</button><button id="rear">Rear</button>
+      </div>
+      <span id="hint" class="sr-only">Drag to look around</span>
+      <div class="zoom-controls" aria-label="Camera size"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button></div>
+    </div>
+    <section class="controls" aria-label="Camera exploration controls">
+      <label class="camera-model" for="camera-model">Camera
+        <select id="camera-model"><option value="mirrorless">Mirrorless</option><option value="dslr">DSLR</option><option value="film">Film SLR</option></select>
+      </label>
+      <div class="studies" aria-label="Mechanism inspector">
+        <button id="study-camera" aria-pressed="true">Camera</button>
+        <button id="study-lens" aria-pressed="false">Lens</button>
+        <button id="study-mount" aria-pressed="false">Mount</button>
+        <button id="study-film" aria-pressed="false" hidden>Film</button>
+      </div>
+      <p id="part-label" class="part-label">Shutter button</p>
+      <p id="caption" class="sr-only" role="status" aria-live="polite">The lens brings light into the camera.</p>
+      <div class="actions"><button id="open" class="primary" disabled>Look inside</button><button id="capture" disabled>Take a photo</button></div>
+      <div id="timeline" hidden><label for="time">Exposure <span>slowed down</span></label><input id="time" type="range" min="0" max="1" step="0.001" value="0" aria-label="Step through exposure"></div>
+      <div id="lens-controls" hidden>
+        <label for="aperture">Aperture opening</label><input id="aperture" type="range" min="0" max="1" step="any" value="0.5" style="direction:rtl">
+        <label for="focus">Focus group position</label><input id="focus" type="range" min="0" max="1" step="0.01" value="0.5">
+        <label for="zoom">Zoom group position</label><input id="zoom" type="range" min="0" max="1" step="0.01" value="0.5">
+      </div>
+      <div id="mount-controls" class="actions" hidden>
+        <button id="mount-mark">Mounting marks</button><button id="mount-release">Lens release</button>
+      </div>
+      <div id="film-controls" hidden>
+        <p id="film-status" role="status">No film</p>
+        <div class="actions">
+          <button id="film-load" class="primary">Load film</button>
+          <button id="film-back">Open back</button>
+          <button id="film-advance" disabled>Advance</button>
+          <button id="film-release" disabled>Release shutter</button>
+          <button id="film-rewind" disabled>Rewind</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script type="module">
+    import('./scene.js').catch(error => {
+      document.querySelector('#loading').textContent = 'Couldn’t load 3D view.';
+      console.error(error);
+      window.dispatchEvent(new CustomEvent('focal-teaching3d-error', { detail: { message: String(error) } }));
+      import('./host_bridge.js').then(m => m.publishLoadError('camera', error)).catch(() => {});
+    });
+  </script>
+</body>
+</html>
