@@ -1,6 +1,12 @@
 import * as THREE from './vendor/three.module.min.f231b18ca7.js';
 import {SHADE_GLSL,CEL_GLSL,shadeUniforms,applyShadeColors,applyLevels,halftonePitch} from './lighting_shading.js';
 import {NOISE_SHOT,NOISE_READ,NOISE_REDUCTION_SHARE,NOISE_REDUCTION_ISO,NOISE_CHROMA_SHOT,NOISE_CHROMA_READ,BASE_ISO,grainGain,SHAKE_TAPS,shakeNeeded,IGN_A,IGN_B,IGN_C} from './lighting_effects.js';
+// The depth stage (studio_stage.js): on the dark paper ink ground, prop falloff and the feathered window; on the light one prop fog. Off unless a lesson asks.
+import {STAGE_GLSL,stageUniforms,applyStage} from './studio_stage.js';
+// The full-bleed lesson view's edge fade (studio_overscan.js): off unless the host names a frame.
+import {applyOverscan} from './studio_overscan.js';
+// One scale and one sensor (Kent, October 22, 2026: true scale).
+import {WORLD_UNITS_PER_METER,SENSOR_MM} from './world_scale.js';
 
 // A bounded thin-lens display pass. The renderer owns exposure and color
 // management; this helper owns only depth-aware defocus and the final print
@@ -13,7 +19,8 @@ import {NOISE_SHOT,NOISE_READ,NOISE_REDUCTION_SHARE,NOISE_REDUCTION_ISO,NOISE_CH
 // sideways with single-fetch taps, then grains the result. A blur of a finished
 // picture cannot draw the dark rim an added shake delta did, and the shake
 // costs SHAKE_TAPS fetches instead of 16 defocused pixels.
-const SENSOR_WIDTH_METERS=0.036;
+// The full-frame sensor's width in meters, the fallback when a camera cannot say its film width (world_scale.js).
+const SENSOR_WIDTH_METERS=SENSOR_MM.width*.001;
 // Defocus taps gathered while the camera moves (center plus the cross); tune on the phone, 1..13.
 const CHEAP_TAPS=5;
 const SAMPLE_OFFSETS=Object.freeze([
@@ -119,6 +126,7 @@ const FRAGMENT=`
     return cocMeters(viewDepth(depth)/max(worldUnitsPerMeter,.0001));
   }
   ${SHADE_GLSL}
+  ${STAGE_GLSL}
   // The finished picture for one pixel: exposure, display encoding, then the
   // halftone screen. Depth of field blurs the tone, never the light.
   vec3 display(vec3 hdr){
@@ -147,6 +155,7 @@ const FRAGMENT=`
   vec3 finish(vec3 hdr,vec2 uv){
     vec3 shown=display(hdr);
     if(toneFloor>.5)shown=floorToPaper(shown);
+    shown=stageWindowed(shown,uv);
     return screenInPass()?shadeInk(shown,screenPx(uv)):shown;
   }
   // The halftone is a screen laid on the print, not part of the picture:
@@ -181,22 +190,41 @@ const FRAGMENT=`
         // defocused silhouette edge fades into it instead of staying crisp.
         bool paper=sampleDepth>=.999999&&abs(sampleColor.a-.5)>=.01;
         if(paper){
-          vec3 pt=paperShown(sampleColor.rgb);
-          // The paper is never screened: it joins after the model's tone is.
-          if(screen){paperSum+=pt;paperWeight+=1.;}else{sum+=pt;weightSum+=1.;}
+          vec3 pt=stageGround(paperShown(sampleColor.rgb));
+          // The paper is never screened: it joins after the model's tone is. The ink stage's
+          // ground is part of the picture: it is screened with the model (windowed below).
+          if(screen&&!inkStageOn()){paperSum+=pt;paperWeight+=1.;}else{sum+=screen?pt:stageWindowed(pt,suv);weightSum+=1.;}
         }else{
           float depthWeight=(sampleDepth>=.999999||abs(sampleColor.a-.5)<.01)?0.0:exp(-abs(viewDepth(sampleDepth)-viewDepth(depth))*18.0/max(viewDepth(depth),.001));
           sum+=tapTone(sampleColor.rgb,suv,screen)*depthWeight;weightSum+=depthWeight;
         }
       }
       if(!screen)return sum/max(weightSum,.0001);
-      vec3 inked=shadeInk(sum/max(weightSum,.0001),screenPx(uv));
+      vec3 inked=shadeInk(stageWindowed(sum/max(weightSum,.0001),uv),screenPx(uv));
       return (inked*weightSum+paperSum)/max(weightSum+paperWeight,.0001);
     }
     // Paper pixel: scatter the subject's defocus outward. Taps within the
     // subject's circle of confusion that land on the subject carry its
     // finished color, the rest keep the paper, so the silhouette softens on
     // both sides of the edge.
+    if(inkStageOn()){
+      // The ink stage: the ground is ink, mixed with the subject's scattered tone, then windowed
+      // and screened like the picture (the window thins its dots toward the edge).
+      vec3 tone=stageGround(vec3(0.));
+      float coc=subjectDistance>0.?cocMeters(subjectDistance):0.;
+      if(noDefocus<.5&&abs(coc)>paperScatterPixels){
+        vec3 sum=vec3(0.);float hits=0.;
+        for(int k=0;k<13;k++){
+          if(k>=taps)break;
+          vec2 suv=uv+offsets[k]*coc/max(resolution,vec2(1.));
+          vec4 sampleColor=texture2D(colorTexture,suv);
+          if(texture2D(depthTexture,suv).r<.999999&&sampleColor.a>.99){sum+=display(sampleColor.rgb);hits+=1.;}
+        }
+        tone=(sum+tone*(float(taps)-hits))/float(taps);
+      }
+      tone=stageWindowed(tone,uv);
+      return screenInPass()?shadeInk(tone,screenPx(uv)):tone;
+    }
     vec3 shown=paperShown(c.rgb);
     // The filtered silhouette edge mixes the bust's dark with the paper: held to the paper too.
     if(toneFloor>.5)shown=floorToPaper(shown);
@@ -223,15 +251,25 @@ const FRAGMENT=`
     // Opaque softbox materials reserve alpha .5 in the HDR buffer as an
     // indicator flag. Preserve their black-to-white setting preview instead
     // of applying photographic exposure or the print screen to that UI cue.
-    if(abs(center.a-.5)<.01){
+    // On either stage a prop's anti-aliased edge blends its .5 flag with the ground's alpha 1: such a pixel is
+    // the prop's tone part-covering the ink, not a lit surface, so it takes the prop's path. Through the lit path
+    // it was given the exposure and no falloff, a bright outline round every print (aesthetic review, October 21,
+    // 2026). The bust writes alpha 1 throughout.
+    if(abs(center.a-.5)<.01||stageEdge(center.a)){
       // The cue is never given exposure, defocus or noise (it shakes with the picture in the shake pass), but in the print it is screened like the picture: the panel is a halftone tone, not flat gray.
       vec3 cue=paperShown(center.rgb);
+      // On the stage a prop's tone falls off (ink) or fades into fog (paper) with its distance from the key; the ink stage's window fades it.
+      cue=stageWindowed(stageDistance(cue,centerDepth,vUv),vUv);
       gl_FragColor=vec4(screenInPass()?shadeInk(cue,screenPx(vUv)):cue,1.);
       return;
     }
     // The softbox's drawn edges (alpha .24 outline, .7 housing) are ink lines: shown as drawn, never screened into dashes, no exposure or noise.
     if(abs(center.a-.24)<.01||abs(center.a-.7)<.01){
-      gl_FragColor=vec4(paperShown(center.rgb),1.);
+      // On the stage a prop's anti-aliased edge (its .5 flag blended with the ground's alpha) and a thin wire
+      // land on these flags too: they take the key's falloff (or fog) like the prop itself, else they print at the prop's
+      // full tone, a bright outline round every print (aesthetic review, October 21, 2026). Windowed: outside
+      // the window it is paper. Off the stage both are no-ops.
+      gl_FragColor=vec4(stageWindowed(stageDistance(paperShown(center.rgb),centerDepth,vUv),vUv),1.);
       return;
     }
     vec3 shown=defocusedPixel(vUv);
@@ -285,12 +323,13 @@ const SHAKE_FRAGMENT=`
 `;
 // The moving (cel) frame, see lighting_quality.js: tone mapping and display
 // encoding only, then flat ink bands in the print. No defocus taps, halftone,
-// grain or shake, and no depth fetch: the paper is told by its color, the scene's
+// grain or shake, and no depth fetch (except the depth stage's prop falloff or fog): the paper is told by its color, the scene's
 // background exactly. It draws into a small target (render targets get no automatic
 // tone mapping or encoding, so both are done here with three's own ACES).
 const CEL_FRAGMENT=`
   precision highp float;
   uniform sampler2D colorTexture;
+  uniform sampler2D depthTexture;
   uniform vec3 paperHdr;
   uniform float printMode;
   uniform float noiseCell;
@@ -298,14 +337,26 @@ const CEL_FRAGMENT=`
   ${THREE.ShaderChunk.tonemapping_pars_fragment.replaceAll('toneMappingExposure','celExposure')}
   ${SHADE_GLSL}
   ${CEL_GLSL}
+  ${STAGE_GLSL}
   vec3 encode(vec3 c){c=clamp(c,0.,1.);return mix(c*12.92,1.055*pow(c,vec3(1./2.4))-.055,step(vec3(.0031308),c));}
   void main(){
     vec4 c=texture2D(colorTexture,vUv);
     // The softbox's drawn edges stay plain ink lines; the panel cue and the paper get no exposure.
-    if(abs(c.a-.24)<.01||abs(c.a-.7)<.01){gl_FragColor=vec4(levelOut(encode(c.rgb)),1.);return;}
+    // On the stage the props (and their edges, which can carry the line flags) fall off with the key as in
+    // the still frame; off it stageDistance and stageWindowed change nothing and the depth is never read.
+    if(abs(c.a-.24)<.01||abs(c.a-.7)<.01){
+      vec3 line=encode(c.rgb);
+      if(depthStageOn())line=stageWindowed(stageDistance(line,texture2D(depthTexture,vUv).r,vUv),vUv);
+      gl_FragColor=vec4(levelOut(line),1.);return;
+    }
     bool paper=abs(c.a-.5)>=.01&&all(lessThan(abs(c.rgb-paperHdr),vec3(.002)));
-    vec3 shown=abs(c.a-.5)<.01||paper?encode(c.rgb):encode(ACESFilmicToneMapping(c.rgb));
+    bool cue=abs(c.a-.5)<.01||stageEdge(c.a);
+    vec3 shown=cue||paper?encode(c.rgb):encode(ACESFilmicToneMapping(c.rgb));
+    if(depthStageOn()&&cue)shown=stageDistance(shown,texture2D(depthTexture,vUv).r,vUv);
+    if(paper)shown=stageGround(shown);
     if(printMode>.5&&!paper)shown=celInk(shown);
+    // The ink stage's window, as flat tones (the moving frame has no dots).
+    shown=stageWindowed(shown,vUv);
     gl_FragColor=vec4(levelOut(shown),1.);
   }
 `;
@@ -369,7 +420,7 @@ export function createLightingOptics(renderer,{maxBlurPixels=18,exactFocusPixels
   target.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
   const material=new THREE.ShaderMaterial({uniforms:{
     colorTexture:{value:target.texture},depthTexture:{value:target.depthTexture},resolution:{value:new THREE.Vector2(1,1)},outputResolution:{value:new THREE.Vector2(1,1)},
-    cameraNear:{value:.1},cameraFar:{value:40},focalLengthMm:{value:50},aperture:{value:4},focusDistance:{value:3},worldUnitsPerMeter:{value:5.333333},sensorWidthMeters:{value:SENSOR_WIDTH_METERS},maxBlurPixels:{value:maxBlurPixels},exactFocusPixels:{value:exactFocusPixels},printMode:{value:0},deferScreen:{value:0},leveled:{value:1},...shadeUniforms(THREE),subjectDistance:{value:0},viewZoom:{value:1},cheap:{value:0},noDefocus:{value:0},toneFloor:{value:0},isoGain:{value:1},noiseGrain:{value:1.7},noiseCell:{value:1},
+    cameraNear:{value:.1},cameraFar:{value:40},focalLengthMm:{value:50},aperture:{value:4},focusDistance:{value:3},worldUnitsPerMeter:{value:WORLD_UNITS_PER_METER},sensorWidthMeters:{value:SENSOR_WIDTH_METERS},maxBlurPixels:{value:maxBlurPixels},exactFocusPixels:{value:exactFocusPixels},printMode:{value:0},deferScreen:{value:0},leveled:{value:1},...shadeUniforms(THREE),subjectDistance:{value:0},viewZoom:{value:1},cheap:{value:0},noDefocus:{value:0},toneFloor:{value:0},isoGain:{value:1},noiseGrain:{value:1.7},noiseCell:{value:1},...stageUniforms(THREE),
   },vertexShader:VERTEX,fragmentShader:FRAGMENT,depthTest:false,depthWrite:false,toneMapped:true,transparent:true});
   // The canvas, copied after the optics pass, is the shake pass's input.
   let finished=new THREE.FramebufferTexture(1,1);
@@ -387,8 +438,8 @@ export function createLightingOptics(renderer,{maxBlurPixels=18,exactFocusPixels
   // The cel frame's target (one pixel per CSS pixel) and the pass that upscales it.
   const celTarget=new THREE.WebGLRenderTarget(1,1,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,type:THREE.UnsignedByteType,depthBuffer:false});
   const celMaterial=new THREE.ShaderMaterial({uniforms:{
-    colorTexture:material.uniforms.colorTexture,paperHdr:{value:new THREE.Vector3(1,1,1)},printMode:material.uniforms.printMode,noiseCell:material.uniforms.noiseCell,
-    ...Object.fromEntries(Object.keys(shadeUniforms(THREE)).map(key=>[key,material.uniforms[key]])),celExposure:{value:1},
+    colorTexture:material.uniforms.colorTexture,depthTexture:material.uniforms.depthTexture,paperHdr:{value:new THREE.Vector3(1,1,1)},printMode:material.uniforms.printMode,noiseCell:material.uniforms.noiseCell,
+    ...Object.fromEntries([...Object.keys(shadeUniforms(THREE)),...Object.keys(stageUniforms(THREE))].map(key=>[key,material.uniforms[key]])),celExposure:{value:1},
   },vertexShader:VERTEX,fragmentShader:CEL_FRAGMENT,depthTest:false,depthWrite:false,toneMapped:false,transparent:false});
   const blitMaterial=new THREE.ShaderMaterial({uniforms:{frameTexture:{value:celTarget.texture},liftTexture:{value:celTarget.texture},fade:{value:0},band:{value:0},morph:{value:0},toneTexture:{value:celTarget.texture},outSize:{value:new THREE.Vector2(1,1)},morphGeom:{value:new THREE.Vector4(1,1,3,8)},noiseCell:{value:1},...shadeUniforms(THREE)},
     vertexShader:VERTEX,fragmentShader:BLIT_FRAGMENT,depthTest:false,depthWrite:false,toneMapped:false,transparent:false});
@@ -411,7 +462,12 @@ export function createLightingOptics(renderer,{maxBlurPixels=18,exactFocusPixels
   }
   const api={
     // defocus false and grain false are the moving halftone frame (see lighting_quality.js); dotPitch (canvas px, 0 = the pixel ratio's own) keeps its dots the size they are at rest; keepFrame copies the finished canvas for the lift crossfade.
-    render(sourceScene,sourceCamera,{focalLength=50,aperture=4,focusDistance=3,worldUnitsPerMeter=5.333333,printStyle='smooth',refresh=true,subjectDistance=0,viewZoom=1,iso=BASE_ISO,shakePx=0,pixelRatio=1,cheap=false,cel=false,defocus=true,grain=true,dotPitch=0,keepFrame=false,nearestFrame=false,waveCells=0,toneOnly=false,toneFloor=false}={}){
+    render(sourceScene,sourceCamera,{focalLength=50,aperture=4,focusDistance=3,worldUnitsPerMeter=WORLD_UNITS_PER_METER,printStyle='smooth',refresh=true,subjectDistance=0,viewZoom=1,iso=BASE_ISO,shakePx=0,pixelRatio=1,cheap=false,cel=false,defocus=true,grain=true,dotPitch=0,keepFrame=false,nearestFrame=false,waveCells=0,toneOnly=false,toneFloor=false,stage=null,stageKey=null,frame=null,dim=0}={}){
+      // The stage (studio_stage.js stageLook): null or neither ink nor fog draws as before.
+      // frame: the full-bleed lesson view's working frame (studio_overscan.js), null without one.
+      applyStage(material.uniforms,stage,{canvas:canvasSize,pixelRatio,camera:sourceCamera,key:stageKey});
+      // dim: the host's scrim over the live view (a still passes none).
+      applyOverscan(material.uniforms,frame,{canvas:[canvasSize[0]/pixelRatio,canvasSize[1]/pixelRatio],pixelRatio,dim});
       // The cheap picture (the camera is moving) draws its source at reduced size and blurs with fewer taps and skips the shake pass; the optics pass grains it.
       const shaking=shakeNeeded(shakePx)&&!cheap,gain=grain?grainGain(iso):1;
       material.uniforms.cheap.value=cheap?1:0;material.uniforms.noDefocus.value=defocus?0:1;material.uniforms.toneFloor.value=toneFloor?1:0;
@@ -503,4 +559,4 @@ export function createLightingOptics(renderer,{maxBlurPixels=18,exactFocusPixels
   return api;
 }
 
-export const lightingOpticsConstants=Object.freeze({sensorWidthMeters:SENSOR_WIDTH_METERS,sampleCount:SAMPLE_OFFSETS.length,recommendedWorldUnitsPerMeter:3.2/.6});
+export const lightingOpticsConstants=Object.freeze({sensorWidthMeters:SENSOR_WIDTH_METERS,sampleCount:SAMPLE_OFFSETS.length,recommendedWorldUnitsPerMeter:WORLD_UNITS_PER_METER});

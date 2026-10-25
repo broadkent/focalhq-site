@@ -1,6 +1,8 @@
 import * as THREE from './vendor/three.module.min.f231b18ca7.js';
 import {OrbitControls} from './vendor/OrbitControls.f231b18ca7.js';
 import {buildBust,BUST_MODELS,FACE_PILOT_MODELS,STYLED_FACE_PILOT_MODEL} from './bust.js';
+import {WORLD_UNITS_PER_METER,configureFullFrameCamera} from './world_scale.js';
+import {LAMP_ASPECT,LAMP_LIMIT,clampLampPosition,clampLampWidth,defaultLamp} from './lamp_rig.js';
 import {createAreaLight} from './area_light.js';
 import {createPlacementControls} from './lighting_controls.js';
 import {createLightingSession,brightnessIntensity} from './lighting_session.js';
@@ -17,6 +19,8 @@ import {handheldShake} from './lighting_effects.js';
 import {lightingAim,overflow,eyeSide,eyeLevel,eyeShift,followAim} from './framing_blend.js';
 import {DOLLY_IN,dollyInAngles,dollyInZoom,startZoom} from './lighting_orbit_in.js';
 import {sheetWindow} from './lighting_sheet_window.js';
+// The lessons' full-bleed view: the host's working frame inside a larger canvas (studio_overscan.js).
+import {parseFrame,parseDim,frameIn,overscanViewOffset,toFrameFraction} from './studio_overscan.js';
 import {createMoveClock,LIFT_SETTLE_MS,renderQuality,createLiftFade,liftEase,LIFT_CROSSFADE_ENABLED,LIFT_WAVE_CELLS,movingScreen,MOVING_PIXEL_RATIO,MOVING_LOOK,MOVING_SCALE,meterIsDue} from './lighting_quality.js';
 import {dragRenderIndex,dragRenderQuality,createDragScene} from './lighting_drag_render.js';
 import {createGlideGroup,wrapDegrees} from './pose_glide.js';
@@ -54,21 +58,20 @@ const target=new THREE.Vector3(0,.55,0);
 const FOCAL_LENGTHS=Object.freeze([24,35,50,85,105,135]);
 const DEFAULT_FOCAL_LENGTH=50;
 const cameraSettings=createLightingCamera({lesson});
-const worldUnitsPerMeter=3.2/.6;
+// One scale for the bust, the lens and the focus (world_scale.js; Kent, October 22, 2026: true scale).
+const worldUnitsPerMeter=WORLD_UNITS_PER_METER;
 let meterState={scene:0,iso:0,aperture:0,shutter:0,total:0};
 let focusDistance=1;
 const initialState=(id,label,position,width,powerStops)=>({id,label,position:[...position],target:target.toArray(),width,height:width*1.25,powerStops,brightnessPercent:Math.min(100,50*2**powerStops),enabled:true,
   referenceDistance:new THREE.Vector3(...position).distanceTo(target),referenceWidth:width,referenceHeight:width*1.25});
 const session=createLightingSession({
   maxLights:3,
+  // The lamps stand at real studio distances (lamp_rig.js; Kent, October 22, 2026: spatially accurate).
   createLight:(id,label,index)=>{
-    const defaults=[
-      [1.79,2.35,2.55,.8,0],[-1.8,1.45,2.7,1.2,-1],
-      [2.4,1.1,-2.2,1,-2],[ -2.4,2.7,-1.8,.7,-3],
-    ][Math.min(index-1,3)];
-    return initialState(id,label,defaults.slice(0,3),defaults[3],defaults[4]);
+    const lamp=defaultLamp(index-1);
+    return initialState(id,label,lamp.position,lamp.width,lamp.powerStops);
   },
-  initialLight:initialState('light-1','Light 1',[1.79,2.35,2.55],.8,0),
+  initialLight:(()=>{const lamp=defaultLamp(0);return initialState('light-1','Light 1',lamp.position,lamp.width,lamp.powerStops);})(),
 });
 let {lights:sourceStates,selectedId}=session.getState();
 let lightState=sourceStates[0];
@@ -80,7 +83,7 @@ const placement=createPlacementControls({root:$('placement'),onChange:next=>setL
 placement.setState(lightState);
 const camera=new THREE.PerspectiveCamera(33,1,.1,40);
 let focalLength=DEFAULT_FOCAL_LENGTH;
-camera.filmGauge=36;
+configureFullFrameCamera(camera);
 camera.setFocalLength(focalLength);
 camera.position.set(0,.2,6.9);camera.lookAt(0,.15,0);
 const baseBustModels=Array.isArray(BUST_MODELS)&&BUST_MODELS.length?BUST_MODELS:[{id:'vitruvian',label:'Vitruvian'}];
@@ -210,6 +213,8 @@ function syncSource(source){
   // both themes (round 7 review 1: white on the light paper vanished, white on the dark paper outshone the headline).
   const shown=landing&&state.enabled?LANDING_PLATE:level;
   for(const mesh of [source.face,source.casing])mesh.material.color.setRGB(shown,shown,shown,THREE.SRGBColorSpace);
+  // The plate is drawn at the lamp's real place and width, on the landing too (Kent, October 22, 2026: true size and
+  // distance; the lamp may fall partly or wholly outside the landing frame). The light and shadows use the same place.
   source.softbox.position.fromArray(state.position);source.softbox.scale.set(state.width,state.height,1);
   const m=source.area.metrics;
   source.softbox.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(m.right,m.up,m.normal));
@@ -444,10 +449,34 @@ window.focalLightingBustSpan=()=>{
 // meter standing on it.
 // sheet is the open light sheet's lens shift (Kent, October 15, 2026): the same kind of vertical window offset, but nothing reads it except this projection, so the camera's position, aim and zoom stay exactly where they are while the sheet opens and closes (see eyeFraming and fitView, which ignore it).
 let viewFrame={shiftY:0,zoom:1,fit:1,floor:0,sheet:0,sheetZoom:1},viewFrameDirty=false;
+// The host's working frame in the canvas (the `frame` command, studio_overscan.js), or null: the canvas is the frame.
+// A still's canvas (stillSize) is the frame alone, so it never overscans.
+let overscan=null,overscanLive=true;
+const liveFrame=()=>overscanLive?overscan:null;
+const canvasCss=()=>[renderer.domElement.clientWidth||1,renderer.domElement.clientHeight||1];
 function applyViewFrame(){
-  const w=renderer.domElement.clientWidth||1,h=renderer.domElement.clientHeight||1,s=viewFrame.zoom*viewFrame.sheetZoom;
-  if(s===1&&viewFrame.shiftY===0&&viewFrame.sheet===0){camera.clearViewOffset();return;}
-  camera.setViewOffset(w*s,h*s,-(1-s)*w/2,-(1-s)*h/2+(viewFrame.shiftY+viewFrame.sheet)*h,w,h);
+  const args=overscanViewOffset(liveFrame(),canvasCss(),{zoom:viewFrame.zoom*viewFrame.sheetZoom,shift:viewFrame.shiftY+viewFrame.sheet});
+  if(!args){camera.clearViewOffset();return;}
+  camera.setViewOffset(...args);
+}
+// The frame's share of the canvas's width: the lens's sensor spans the frame, not the canvas (the optics' blur in px).
+const frameScale=()=>{const [w,h]=canvasCss();return frameIn(liveFrame(),w,h).width/w;};
+// The host's scrim over the live view (studio_overscan.js parseDim); the stills never take it.
+let overscanDim=0;
+function setDim(value){
+  const next=parseDim(value);
+  if(next===overscanDim)return;
+  overscanDim=next;
+  // A tone change only: the next frame redraws (drawNow alone draws only a frame already pending, so
+  // the last dim, 0 after Go!, was never drawn and the picture stayed washed out until the next change).
+  invalidate(false);
+}
+function setOverscan(value){
+  const next=parseFrame(value);
+  if(JSON.stringify(next)===JSON.stringify(overscan))return;
+  overscan=next;
+  if(overscanLive)applyCanvasSize($('stage').clientWidth,$('stage').clientHeight);
+  drawNow();
 }
 // The scene segment's length at EV 0, in stops: the larger, the higher the bar starts up the left wall. Must match lightingSceneBarBase in lib/features/lessons/presentation/light_meter.dart.
 const SCENE_BAR_BASE=6; // domain: scene bar length at EV 0, stops
@@ -634,7 +663,7 @@ function lightTo(value){
   if(!Array.isArray(p)||p.length!==3||!p.every(n=>typeof n==='number'&&Number.isFinite(n)))return;
   if(typeof value.ms!=='number'||!Number.isFinite(value.ms)||value.ms<0)return;
   const [x,y,z]=sourceStates.find(state=>state.id===lightId).position;
-  const clamp=n=>THREE.MathUtils.clamp(n,-12,12);
+  const clamp=n=>THREE.MathUtils.clamp(n,-LAMP_LIMIT,LAMP_LIMIT);
   lightGlideIds.add(lightId);
   glides.channel('light:'+lightId).start({x,y,z},{x:clamp(p[0]),y:clamp(p[1]),z:clamp(p[2])},value.ms,performance.now());
   invalidate();publishState();
@@ -728,7 +757,7 @@ function draw(){
   // Everything the HDR reading depends on; an unchanged key (a re-select, a
   // no-op command) reuses the last readback instead of a scene render.
   const meterKey=[camera.matrixWorld.elements.join(),camera.projectionMatrix.elements.join(),
-    JSON.stringify(sourceStates),selectedModel,style].join('|');
+    JSON.stringify(sourceStates),selectedModel,style,lessonStudio?.meterKey()??''].join('|');
   exposureMeter.setAspect(camera.aspect);
   // A moving frame reads the meter too, asynchronously (a frame behind, never waiting
   // on the GPU), at most once per MOVING_METER_MS; a frame between reads keeps the last
@@ -753,15 +782,22 @@ function draw(){
   for(const outline of outlines)outline.visible=style==='print'&&quality.outline;
   // A drag render other than the first changes the lights, shadows or materials for the optics pass only (the meter read the real scene above).
   const undoDrag=dragScene.apply(quality,{renderer,bust,sources,target}),dragKey=quality.dragRender??0;
-  const opticsArgs={focalLength,aperture:settings.aperture,focusDistance,worldUnitsPerMeter,printStyle:quality.printStyle??style,refresh:refresh||reframed||lastMoving!==quality.moving||lastDrag!==dragKey,viewZoom:viewFrame.zoom*viewFrame.sheetZoom,subjectDistance:lastCameraDistance/worldUnitsPerMeter,
+  const opticsArgs={focalLength,aperture:settings.aperture,focusDistance,worldUnitsPerMeter,printStyle:quality.printStyle??style,refresh:refresh||reframed||lastMoving!==quality.moving||lastDrag!==dragKey,viewZoom:viewFrame.zoom*viewFrame.sheetZoom*frameScale(),frame:liveFrame(),dim:overscanLive?overscanDim:0,subjectDistance:lastCameraDistance/worldUnitsPerMeter,
     // Display-only: sensor noise at the ISO and handheld shake at the shutter. The meter read its own render above.
     iso:settings.iso,shakePx:handheldShake(focalLength,settings.shutter).blurPx*renderer.getPixelRatio(),pixelRatio:renderer.getPixelRatio(),cheap:quality.cheap,cel:quality.cel,
-    defocus:quality.defocus,grain:quality.grain,dotPitch:quality.dotPitch??(quality.look==='halftone'?MOVING_SCREEN.pitch:0),keepFrame:(quality.look==='halftone'||quality.look==='drag')&&liftFade.enabled,nearestFrame:quality.nearest===true,waveCells:LIFT_WAVE_CELLS,toneFloor:quality.toneFloor===true};
+    defocus:quality.defocus,grain:quality.grain,dotPitch:quality.dotPitch??(quality.look==='halftone'?MOVING_SCREEN.pitch:0),keepFrame:(quality.look==='halftone'||quality.look==='drag')&&liftFade.enabled,nearestFrame:quality.nearest===true,waveCells:LIFT_WAVE_CELLS,toneFloor:quality.toneFloor===true,
+    // A lesson's depth stage (studio_stage.js): the props fall off (dark) or fade into fog (light) from the key lamp, the first.
+    stage:lessonStudio?.stage()??null,stageKey:sources[0]?{position:sources[0].state.position,ref:target.distanceTo(new THREE.Vector3(...sources[0].state.position))}:null};
   // The lift out of the moving halftone also keeps the tone the full print is cut from (the same pass, screen deferred), so the dissolve can split the coarse dots into the fine ones (lighting_optics.js BLIT_FRAGMENT).
+  // The ink stage draws its ground as ink in the HDR buffer too, so a silhouette's filtered edge blends
+  // into ink, not into a paper-white halo (the scene keeps its paper for the theme and the meter).
+  const stagePaper=opticsArgs.stage?.ink===true?scene.background.clone():null;
+  if(stagePaper)scene.background.setRGB(0,0,0);
   if(liftFade.enabled&&!quality.moving&&optics.movingHalftone&&optics.hasMovingFrame&&(lastMoving||liftFade.running)){
     optics.render(scene,camera,{...opticsArgs,toneOnly:true});opticsArgs.refresh=false;
   }
   optics.render(scene,camera,opticsArgs);
+  if(stagePaper)scene.background.copy(stagePaper);
   undoDrag();lastDrag=dragKey;
   // The lift (or a full frame redrawn mid-fade): this frame is what the fade runs to.
   const fadeIn=liftFade.enabled&&!quality.moving&&optics.hasMovingFrame&&(lastMoving||liftFade.running);lastMoving=quality.moving;
@@ -808,34 +844,18 @@ function draw(){
 function invalidate(refresh=true){sceneDirty=sceneDirty||refresh;if(!frame&&!disposed&&!document.hidden&&!paused)frame=requestAnimationFrame(draw);}// Draw the pending frame now instead of on the next animation frame.
 function drawNow(){if(!frame)return;cancelAnimationFrame(frame);draw();}
 function setLight(next){
-  const p=new THREE.Vector3(...next.position);
-  p.x=THREE.MathUtils.clamp(p.x,-12,12);p.y=THREE.MathUtils.clamp(p.y,-12,12);p.z=THREE.MathUtils.clamp(p.z,-12,12);
-  const direction=p.clone().sub(target);
-  // Keep the emitting plane outside the bust; crossing the protected center
-  // moves around it instead of putting a lamp inside the face.
-  if(direction.length()<2.35){
-    // Respect the untouched axis of the selected orthographic view.
-    const axes=next.axes??[0,1,2],values=direction.toArray();
-    const fixedSquared=values.reduce((sum,value,index)=>sum+(axes.includes(index)?0:value*value),0);
-    const radius=Math.sqrt(Math.max(0,2.35**2-fixedSquared));
-    let length=Math.hypot(...axes.map(index=>values[index]));
-    if(length<1e-8){
-      for(const index of axes)values[index]=lightState.position[index]-target.getComponent(index);
-      length=Math.hypot(...axes.map(index=>values[index]));
-      if(length<1e-8){values[axes[0]]=1;length=1;}
-    }
-    for(const index of axes)values[index]*=radius/length;
-    p.copy(target).add(new THREE.Vector3(...values));
-  }
-  const width=THREE.MathUtils.clamp(next.width,.15,12);
-  session.update({position:p.toArray(),width,height:width*1.25});refreshSessionState();lightState=sourceStates.find(state=>state.id===selectedId);
+  // Inside the placement cube and outside the protected 0.6 m sphere round the face: a lamp that crosses it
+  // slides round it instead of going through the face (lamp_rig.js; the untouched axis of an orthographic view stays).
+  const p=new THREE.Vector3(...clampLampPosition(next.position,{axes:next.axes??[0,1,2],previous:lightState.position,target:target.toArray()}));
+  const width=clampLampWidth(next.width);
+  session.update({position:p.toArray(),width,height:width*LAMP_ASPECT});refreshSessionState();lightState=sourceStates.find(state=>state.id===selectedId);
   syncSource(sources.find(source=>source.state.id===selectedId));selectSource(selectedId);
   markShadows(sources.filter(source=>source.state.id===selectedId));invalidate();publishState();
 }
 
 function setSize(value){
   if(typeof value!=='number'||!Number.isFinite(value))return;
-  const width=THREE.MathUtils.clamp(value,.15,12);
+  const width=clampLampWidth(value);
   // Landing: the lamp grows or shrinks to its new size, its softness with it, over LANDING_SIZE_MS (standard easing).
   if(landing&&!landingReduced()&&lightState&&Math.abs(lightState.width-width)>1e-6){
     landingSizeGlide.start({w:lightState.width},{w:width},LANDING_SIZE_MS,performance.now());invalidate();return;
@@ -964,6 +984,8 @@ function onHostCommand({action,value}={}){
     for(const axis of axes)position[axis]=p[axis];
     setLight({...lightState,position,axes});return;
   }
+  if(action==='frame'){setOverscan(value);return;}
+  if(action==='dim'){setDim(value);return;}
   if(action==='headerBand'){if(headerSampler.setBand(value))invalidate(false);return false;}
   if(action==='inkBands'){if(inkSampler.setBands(value))invalidate(false);return false;}
   if(action==='meterBand'){if(backdrop.setBand(value))invalidate(false);return false;}
@@ -1057,10 +1079,12 @@ renderer.domElement.addEventListener('keydown',event=>{
 for(const mode of ['print','smooth'])$(mode).onclick=()=>setStyle(mode);
 // The canvas at w x h CSS px (not applySize, the lamp width; the stage's size, or a lesson still's own; style untouched for a still).
 function applyCanvasSize(w,h,style=true){
-  const ratio=renderer.getPixelRatio();renderer.setSize(w,h,style);
+  const ratio=renderer.getPixelRatio();renderer.setSize(w,h,style);overscanLive=style;
   optics.forgetMovingFrame();
   optics.resize(w*ratio,h*ratio,sourceScale*LIT_PIXEL_RATIO/ratio,CEL_SCALE*SCREEN_PIXEL_RATIO/ratio);
-  camera.aspect=w/h;camera.setFocalLength(focalLength);camera.updateProjectionMatrix();invalidate();
+  // The camera keeps the working frame's aspect; the canvas round it is an overscan (applyViewFrame).
+  const f=frameIn(liveFrame(),w,h);
+  camera.aspect=f.width/f.height;configureFullFrameCamera(camera);camera.setFocalLength(focalLength);camera.updateProjectionMatrix();invalidate();
 }
 const resize=new ResizeObserver(()=>{
   applyCanvasSize($('stage').clientWidth,$('stage').clientHeight);
@@ -1084,10 +1108,12 @@ window.addEventListener('pagehide',()=>{
 for(const id of ['print','smooth','front'])$(id).disabled=false;
 $('loading').hidden=true;placement.setEnabled(true);rebuildSources();setLight(lightState);
 if(lesson)lessonStudio=(await import('./lesson_studio.js')).createLessonStudio({THREE,scene,camera,controls,renderer,session,cameraSettings,placement,glides,
-  invalidate,publishState,lightTo,refreshSessionState,syncSource,markShadows,currentPose,applyPose,renderStillFrame,
+  invalidate,publishState,lightTo,refreshSessionState,syncSource,markShadows,currentPose,applyPose,renderStillFrame,optics,levels,
   setFocalLength,getFocalLength:()=>focalLength,getCameraDistance:()=>lastCameraDistance,syncCamera:syncLessonCamera,
   getSources:()=>sources,getSourceStates:()=>sourceStates,getSelectedId:()=>selectedId,getBust:()=>bust,contextLost:()=>contextLost,isDark:()=>dark,
-  stillSize:(w,h)=>applyCanvasSize(w,h,false),stageSize:()=>applyCanvasSize($('stage').clientWidth,$('stage').clientHeight)});
+  stillSize:(w,h)=>applyCanvasSize(w,h,false),stageSize:()=>applyCanvasSize($('stage').clientWidth,$('stage').clientHeight),
+  // The working frame in the live canvas (CSS px), and a canvas point as frame fractions (studio_overscan.js).
+  liveFrame:()=>{const [w,h]=canvasCss();return frameIn(liveFrame(),w,h);},toFrame:p=>toFrameFraction(p,liveFrame(),canvasCss())});
 bridge=createHostBridge({kind:'lighting',getState,onCommand:onHostCommand,coalesce:true,
   onTheme:tokens=>applySceneTheme(scene,tokens,{invalidate,levels,onApplied:()=>{optics.setShadeColors(document.documentElement.style.getPropertyValue('--fg'),levelPreimage(document.documentElement.style.getPropertyValue('--bg'),levels.black,levels.white));optics.setLevels(levels.black,levels.white);},
     onDark:value=>{dark=value;recolourSoftboxEdges(sources,dark);lessonStudio?.props.retone();}})});

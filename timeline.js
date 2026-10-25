@@ -55,18 +55,39 @@ export const CAMERA_PARTS = { capture: 'shutter', aperture: 'aperture', focus: '
  * it is and shrinks it (the lab's size glide); hard to the next setup glides the lamp to its new place and
  * grows it back to Soft on the way. The caption names the beat as it lands. `hold` is seconds after landing.
  * Positions are measured on the landing stage (the eyes near y 0.5, the crown near 1.1) and are r8/r9's
- * for Rembrandt and Split (Butterfly is probed on the camera axis): the soft lamp is 2.4 wide, so each setup sits about twice as far from the
+ * for Rembrandt and Split (Butterfly is probed on the camera axis): the soft lamp is 0.98 m wide, so each setup sits about twice as far from the
  * head as before, the panel clear of the face and of the bust from the act's camera (lampprobe, lampedge).
  * Holds: 3.5 s for the first (its first second is the cross-blur in), then 3 s each; the last runs through
  * the cross-blur out.
  */
+// True scale (Kent, October 22, 2026: "We want it spatially accurate."): the lamps stand at real distances, written
+// as meters from the face and turned to the world units the lab takes here. This file imports nothing, so the
+// two numbers below mirror web/teaching3d/world_scale.js and lamp_rig.js; test/web/true_scale_lamps.test.mjs
+// fails if either drifts. Each place is the old one scaled about the face by 0.41 m per old unit, so every
+// angle is as it was, and the soft lamp (0.984 m, a 1 m octa) and the hard one (14 cm, a bare reflector) keep
+// their width over distance.
+const WORLD_UNITS_PER_METER = 3.2 / 0.4064;
+const FACE_Y = 0.55; // the lamp target's height, world units
+const lampAt = ([x, y, z]) => [x * WORLD_UNITS_PER_METER, FACE_Y + y * WORLD_UNITS_PER_METER, z * WORLD_UNITS_PER_METER];
+// October 25, 2026 ("Increase the focal length of the view camera ... Keep the model the same relative size"): the
+// camera act looks through an 85 mm lens (full frame, 24 mm tall) in place of the lab's own 35 degree view (about
+// 38 mm), the lab's `focalLength` command (scene.js setLandingFocalLength). Each turntable distance is written for the
+// 35 degree view and dollied back by the ratio of the two views (the iris plane at its old size), then brought in by
+// BODY_FIT: the flatter view shrinks the near grip and lens more than it grows the far side, and 0.965 puts the whole
+// body's box back at its 35 degree size (measured on the opening frame: its diagonal within 1% at 390 and 1440, a
+// little taller and narrower than before, as a longer lens draws it). Re-measure it if the lens changes.
+const CAMERA_LENS_MM = 85;
+const LAB_VIEW_FOV = 35; // degrees, vertical: scene.js VIEW_FOV
+const LENS_DOLLY = (Math.tan((LAB_VIEW_FOV / 2) * (Math.PI / 180)) * CAMERA_LENS_MM) / 12;
+const BODY_FIT = 0.965;
+const atLens = (distance) => +(distance * LENS_DOLLY * BODY_FIT).toFixed(2);
 export const STUDIO_SEQUENCE = [
-  { name: 'Soft butterfly', setup: 'Butterfly', light: 'soft', position: [0, 2.9, 1.1], hold: 3.5 }, // on the camera axis, high above the brow: the small shadow under the nose, even cheeks (butterfly probes: the Soft panel clears the crown and the frame at 390 and 1440)
-  { name: 'Hard butterfly', setup: 'Butterfly', light: 'hard', position: [0, 2.9, 1.1], hold: 3 },
-  { name: 'Soft Rembrandt', setup: 'Rembrandt', light: 'soft', position: [2.0, 1.8, 1.4], hold: 3 }, // 45 degrees round, above the eyes: the lit cheek triangle
-  { name: 'Hard Rembrandt', setup: 'Rembrandt', light: 'hard', position: [2.0, 1.8, 1.4], hold: 3 },
-  { name: 'Soft split', setup: 'Split', light: 'soft', position: [2.2, 1.3, 0.4], hold: 3 }, // to the side, a little above the eyes: half the face
-  { name: 'Hard split', setup: 'Split', light: 'hard', position: [2.2, 1.3, 0.4], hold: 3 },
+  { name: 'Soft butterfly', setup: 'Butterfly', light: 'soft', position: lampAt([0, 0.963, 0.451]), hold: 3.5 }, // on the camera axis, high above the brow: the small shadow under the nose, even cheeks (butterfly probes: the Soft panel clears the crown and the frame at 390 and 1440)
+  { name: 'Hard butterfly', setup: 'Butterfly', light: 'hard', position: lampAt([0, 0.963, 0.451]), hold: 3 },
+  { name: 'Soft Rembrandt', setup: 'Rembrandt', light: 'soft', position: lampAt([0.82, 0.513, 0.574]), hold: 3 }, // 45 degrees round, above the eyes: the lit cheek triangle
+  { name: 'Hard Rembrandt', setup: 'Rembrandt', light: 'hard', position: lampAt([0.82, 0.513, 0.574]), hold: 3 },
+  { name: 'Soft split', setup: 'Split', light: 'soft', position: lampAt([0.902, 0.308, 0.164]), hold: 3 }, // to the side, a little above the eyes: half the face
+  { name: 'Hard split', setup: 'Split', light: 'hard', position: lampAt([0.902, 0.308, 0.164]), hold: 3 },
 ];
 
 export const K = {
@@ -81,11 +102,12 @@ export const K = {
   // Kent, October 20, 2026 ("This angle"): the app's Explore three-quarter view from above, about 30 degrees down and
   // 40 degrees round from the lens axis (the lab's own lensView azimuth -40, elevation 30). The turntable drifts a few
   // degrees round it so the act still moves.
+  CAMERA_LENS_MM, // the act's lens, mm (above): the turntable distances are dollied for it
   TURNTABLE: [
-    { azimuth: -54, elevation: 31, distance: 12.4, anchorX: 0.66 }, // review 2: the solid opening framed out, clear of the options and caption
-    { azimuth: -44.7, elevation: 30.3, distance: 12.2, anchorX: 0.64 }, // Kent, October 20: the orbit 1.5x faster, a 28 deg sweep centered on his angle
-    { azimuth: -35.3, elevation: 29.7, distance: 12, anchorX: 0.62 },
-    { azimuth: -26, elevation: 29, distance: 11.8, anchorX: 0.6 },
+    { azimuth: -54, elevation: 31, distance: atLens(12.4), anchorX: 0.66 }, // review 2: the solid opening framed out, clear of the options and caption
+    { azimuth: -44.7, elevation: 30.3, distance: atLens(12.2), anchorX: 0.64 }, // Kent, October 20: the orbit 1.5x faster, a 28 deg sweep centered on his angle
+    { azimuth: -35.3, elevation: 29.7, distance: atLens(12), anchorX: 0.62 },
+    { azimuth: -26, elevation: 29, distance: atLens(11.8), anchorX: 0.6 },
   ],
   CAMERA_ANCHOR_Y: 0.58, // the iris a little low in the window: the options sit top left
   // r9 (#951's shorter phone window, 0.9 of its width): the iris lower still on a phone, so the body clears the
@@ -119,7 +141,7 @@ export const K = {
   LIGHT_ID: 'light-1',
   // The lamp's width (the app's `size`, its height 1.25 times that): Kent, "soft and hard
   // which increases / decreases the size of the light".
-  LIGHT_SIZE: { soft: 2.4, hard: 0.35 }, // r8, Kent: "make the soft light much, much bigger"
+  LIGHT_SIZE: { soft: 0.984 * WORLD_UNITS_PER_METER, hard: 0.144 * WORLD_UNITS_PER_METER }, // meters: a 1 m octa, a 14 cm bare reflector; // r8, Kent: "make the soft light much, much bigger"
 
   // ---- Studio lens slider (r10, Kent: "a slider with a lens mm there. 24-200"): the app's lens ruler
   // (studio_scene.dart studioLensDetents), its default the Studio's 50 mm. The lab's `focalLength` command.
@@ -559,6 +581,7 @@ export function primeCommands(lab, { box, choice, zoom, lens } = {}) {
     return [
       ...zoomed,
       { action: 'lessonViewport', value: cameraBox(box, anchorX) },
+      { action: 'focalLength', value: K.CAMERA_LENS_MM },
       { action: 'model', value: choice ?? DEFAULT_CHOICE.camera },
       { action: 'lensView', value: pose },
       { action: 'part', value: firstPart },
@@ -592,6 +615,7 @@ export function stillCommands(lab, { box, choice, zoom, lens } = {}) {
     return [
       ...zoomed,
       { action: 'lessonViewport', value: cameraBox(box, anchorX) },
+      { action: 'focalLength', value: K.CAMERA_LENS_MM },
       { action: 'model', value: choice ?? DEFAULT_CHOICE.camera },
       { action: 'lensView', value: pose },
       { action: 'part', value: 'aperture' },

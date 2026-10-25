@@ -3,8 +3,20 @@ import {GLTFLoader} from './vendor/GLTFLoader.f231b18ca7.js';
 import {MeshoptDecoder} from './vendor/meshopt_decoder.f231b18ca7.js';
 
 import {BUST_MODELS,modelUrl,FACE_PILOT_MODELS,VITRUVIAN_EYE_X} from './bust_models.js';
+import {WORLD_UNITS_PER_METER,YOUNG_WOMAN_HEIGHT_M,metersToWorld} from './world_scale.js';
 export {BUST_MODELS,PILOT_MODEL_BASE,modelUrl,FACE_PILOT_MODEL,STYLED_FACE_PILOT_MODEL,PONYTAIL_FACE_PILOT_MODEL,
   VICTORIAN_FACE_PILOT_MODEL,SHORT_CURLS_FACE_PILOT_MODEL,MESSY_BUN_FACE_PILOT_MODEL,FACE_PILOT_MODELS} from './bust_models.js';
+
+// Kent, October 22, 2026: the bust is life size. The shipped GLBs are authored in meters, so a model is
+// scaled by world units per meter and nothing else (the Vitruvian study stays 3.2 units, the young
+// woman 3.15, the young man 3.15). The face pilots carry hair and clothing that vary in height, so they
+// are fitted by the head mesh to the young woman's native height instead of a made-up 3.2.
+export const PILOT_FIT_HEIGHT = metersToWorld(YOUNG_WOMAN_HEIGHT_M);
+
+/** The scale that puts [model] at life size; [size] is its fitted bounds' size in its own units. */
+export function bustScale(model,size){
+  return model?.pilot===true?PILOT_FIT_HEIGHT/size.y:WORLD_UNITS_PER_METER;
+}
 
 export async function buildBust(id='vitruvian',options={}) {
   const model=[...BUST_MODELS,...(options.facePilot?FACE_PILOT_MODELS:[])].find(model=>model.id===id);
@@ -58,7 +70,7 @@ export async function buildBust(id='vitruvian',options={}) {
     }
   }else bounds.setFromObject(asset);
   const center=bounds.getCenter(new THREE.Vector3()),size=bounds.getSize(new THREE.Vector3());
-  const scale=3.2/size.y;
+  const scale=bustScale(model,size);
   asset.scale.multiplyScalar(scale);
   asset.position.set(-center.x*scale,.15-center.y*scale,-center.z*scale);
   bust.add(asset);

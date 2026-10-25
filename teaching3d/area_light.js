@@ -1,7 +1,15 @@
 import * as THREE from './vendor/three.module.min.f231b18ca7.js';
+import {AREA_DEFAULT,LAMP_TARGET,MAX_LAMP_WIDTH,MIN_LAMP_WIDTH,RIG_METERS_PER_OLD_UNIT,lampAt,lampSize} from './lamp_rig.js';
+import {metersToWorld} from './world_scale.js';
 
-const MIN_WIDTH=.15,MAX_WIDTH=12,DEFAULT_TARGET=new THREE.Vector3(0,.55,0);
-const DEFAULT_REFERENCE_DISTANCE=Math.hypot(1.7,1.8,2.6);
+const MIN_WIDTH=MIN_LAMP_WIDTH,MAX_WIDTH=MAX_LAMP_WIDTH,DEFAULT_TARGET=new THREE.Vector3(...LAMP_TARGET);
+const DEFAULT_POSITION=lampAt(AREA_DEFAULT.offset),DEFAULT_WIDTH=lampSize(AREA_DEFAULT.width);
+const DEFAULT_REFERENCE_DISTANCE=Math.hypot(...DEFAULT_POSITION.map((n,i)=>n-LAMP_TARGET[i]));
+// The shadow cameras, the penumbra blur and the depth bias were tuned on lamps 2.3 to 3.9 world units out. The rig
+// stands RIG_SCALE times farther now (true scale, lamp_rig.js), so the near plane, the far allowance and the
+// bias (depth per world unit falls with the distance; shadowBias is given as on the old rig) scale with it and a shadow map reads exactly as before;
+// the bust did not grow, so the cone's bust extent and normalBias stay in world units.
+const RIG_SCALE=metersToWorld(RIG_METERS_PER_OLD_UNIT);
 // Fixed, asymmetric offsets avoid the regular shadow banding of a point grid,
 // while keeping every sample inside its equal-area 3x3 stratum.
 const STRATIFIED_3X3=[
@@ -26,9 +34,9 @@ const STRATIFIED_2X2=[[-.53,-.61],[.57,-.43],[-.46,.56],[.62,.49]];
  */
 export function createAreaLight({
   target=DEFAULT_TARGET,color=0xffffff,referenceIlluminance=38,
-  mapSize=1024,width=.7,height=width*1.25,position=new THREE.Vector3(1.7,2.35,2.6),
+  mapSize=1024,width=DEFAULT_WIDTH,height=width*1.25,position=new THREE.Vector3(...DEFAULT_POSITION),
   sampleCount=9,powerStops=0,intensityScale=1,exposureMode='compensated',
-  referenceDistance=DEFAULT_REFERENCE_DISTANCE,referenceWidth=.7,referenceHeight=.875,
+  referenceDistance=DEFAULT_REFERENCE_DISTANCE,referenceWidth=DEFAULT_WIDTH,referenceHeight=DEFAULT_WIDTH*1.25,
   shadowBias=-.00008,
 }={}){
   if(sampleCount!==9&&sampleCount!==4)throw new RangeError('sampleCount must be 9 or 4');
@@ -53,10 +61,10 @@ export function createAreaLight({
     const targetObject=new THREE.Object3D();sampleTargets.add(targetObject);
     const light=new THREE.SpotLight(color,0,0,1.22,0,2);
     light.name=`areaSample${index+1}`;light.castShadow=true;light.target=targetObject;
-    light.shadow.mapSize.set(mapSize,mapSize);light.shadow.camera.near=.15;light.shadow.camera.far=12;
+    light.shadow.mapSize.set(mapSize,mapSize);light.shadow.camera.near=.15*RIG_SCALE;light.shadow.camera.far=12*RIG_SCALE;
     // Small normalBias: at .006 it pushed receiver samples past thin features
     // (ear flaps, eyelid rims), so those lit up while the head sat in shadow.
-    light.shadow.bias=shadowBias;light.shadow.normalBias=.002;group.add(light);
+    light.shadow.bias=shadowBias/RIG_SCALE;light.shadow.normalBias=.002;group.add(light);
     return {light,target:targetObject,u,v,weight:1/offsets.length};
   });
   const center=new THREE.Vector3(),normal=new THREE.Vector3(),up=new THREE.Vector3(),right=new THREE.Vector3();
@@ -124,9 +132,9 @@ export function createAreaLight({
       // bust extent around the target): the old 1.22 floor spread each shadow
       // map over a ~70-degree frustum, leaving texels too coarse for ears and
       // eyelids to block light at all.
-      sample.light.angle=Math.max(.3,Math.min(Math.PI/2-.01,Math.atan2(
+      sample.light.angle=Math.max(.05,Math.min(Math.PI/2-.01,Math.atan2(
         Math.hypot(sample.u*currentWidth*.5,sample.v*currentHeight*.5)+2.3,distance)));
-      sample.light.shadow.camera.far=Math.max(12,range+4);
+      sample.light.shadow.camera.far=Math.max(12*RIG_SCALE,range+4*RIG_SCALE);
       // Blur each sample's shadow in proportion to the gap between samples,
       // so a WIDE source reads as one soft penumbra instead of N stacked
       // hard shadows (Kent's 09-19 "4ish separate lights" banding). The gap
@@ -134,7 +142,7 @@ export function createAreaLight({
       // PCF kernel by roughly that gap (expressed in shadow-map texels at
       // the target) makes the bands overlap and fuse. Small sources keep a
       // crisp geometric penumbra (radius clamps to 1 = plain PCF).
-      const sampleGap=Math.max(currentWidth,currentHeight)/(sampleCount===9?3:2);
+      const sampleGap=Math.max(currentWidth,currentHeight)/RIG_SCALE/(sampleCount===9?3:2);
       const texelWorld=2*distance*Math.tan(sample.light.angle)/mapSize;
       sample.light.shadow.radius=THREE.MathUtils.clamp(sampleGap*.5/Math.max(texelWorld,1e-6),1,24);
       const sourceCosine=Math.max(0,normal.dot(ray)/range);

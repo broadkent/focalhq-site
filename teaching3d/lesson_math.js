@@ -1,3 +1,4 @@
+import {metersToWorld, equalFramingDistanceM} from './world_scale.js';
 // Pure math for the Studio lessons (lesson=1): the key:fill ratio and the equal-framing
 // dolly. No scene, no DOM, so node tests load it.
 import {LAMP_TARGET} from './lesson_presets.js';
@@ -42,6 +43,10 @@ export function keyFillRatio(lights, target = LAMP_TARGET) {
 // holding head size as the lens changes holds distance / focalLength (millimeters' worth of
 // distance per millimeter of lens).
 export const equalFramingRate = (distance, focalLength) => distance / focalLength;
+
+// True scale (Kent, October 22, 2026): the rate a real full-frame camera needs to hold the head at
+// EQUAL_FRAMING_HEAD_FRACTION of the 24 mm frame, world units per mm, whatever the camera distance was.
+export const trueEqualFramingRate = () => metersToWorld(equalFramingDistanceM(1));
 
 /** The camera distance that keeps the head size [rate] sets at [focalLength], inside [min, max]. */
 export function equalFramingDistance(rate, focalLength, {min = 0, max = Infinity} = {}) {

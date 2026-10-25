@@ -449,6 +449,16 @@ const glides=createGlideGroup(()=>publishHost(true)),poseGlide=glides.channel('p
 const landingZoomGroup=createGlideGroup(),landingZoomGlide=landingZoomGroup.channel('viewZoom');
 const LANDING_VIEW_ZOOM=[.5,3]; // domain: landing view zoom bounds, a multiplier on the tour's framing
 function setLandingViewZoom(z){camera.zoom=z;camera.updateProjectionMatrix();}
+// Landing only: the tour's lens, mm on a full frame (24 mm tall; the lab's own 35 degree view is about 38 mm). The host
+// dollies out to match (timeline.js K.CAMERA_LENS_MM), so the dolly limit moves out with the lens and a pinch out still
+// pulls back from the tour's framing.
+const VIEW_FOV=camera.fov,VIEW_MAX_DISTANCE=controls.maxDistance;
+function setLandingFocalLength(mm){
+  if(typeof mm!=='number'||!Number.isFinite(mm)||mm<=0)return;
+  camera.fov=THREE.MathUtils.radToDeg(2*Math.atan(12/mm));camera.updateProjectionMatrix();
+  controls.maxDistance=VIEW_MAX_DISTANCE*Math.tan(THREE.MathUtils.degToRad(VIEW_FOV/2))/Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
+  invalidate();
+}
 function landingZoomTo(value){
   const z=value?.zoom,ms=value?.ms;
   if(typeof z!=='number'||!Number.isFinite(z))return;
@@ -593,6 +603,7 @@ function onHostCommand({action,value}){
   // (any glide, reveal or fade holds where it is, then picks up).
   if(action==='poseTo'){if(!disposed)poseTo(value);publishHost(true);return;}
   if(action==='viewZoom'&&landing){if(!disposed)landingZoomTo(value);return;}
+  if(action==='focalLength'&&landing){if(!disposed)setLandingFocalLength(value);return;}
   // Landing only: the visitor's body choice swaps the body in place, the tour's view kept.
   if(action==='model'&&landing){if(!disposed)landingModel(value);publishHost(true);return;}
   // Landing only: the lens study's body from solid (0) to its wire sketch (1), as the tour's clock says.

@@ -1,9 +1,16 @@
 // Lightweight, dependency-free placement diagrams for the lighting study.
 // The host owns the lighting state; this module only presents and edits it.
+// True scale (Kent, October 22, 2026): lamps stand where a studio puts them and the placement field spans the
+// +-2 m cube (lamp_rig.js), so a lamp 1.2 m out sits about 65 of the field's 110 units from the center.
+import {LAMP_LIMIT, LAMP_TARGET, MAX_LAMP_WIDTH, MIN_LAMP_WIDTH, PANEL_DEFAULT, lampAt, lampSize} from './lamp_rig.js';
+import {metersToWorld} from './world_scale.js';
 
-const LIMITS = Object.freeze({x: 12, z: 12, yMin: -12, yMax: 12, width: [0.15, 12]});
-const PLACEMENT_SCALE=109/12;
-const DEFAULT_STATE = Object.freeze({position: [1.4, 1.8, 2.2], target: [0, .55, 0], width: .8, height: 1});
+const LIMITS = Object.freeze({x: LAMP_LIMIT, z: LAMP_LIMIT, yMin: -LAMP_LIMIT, yMax: LAMP_LIMIT, width: [MIN_LAMP_WIDTH, MAX_LAMP_WIDTH]});
+const PLACEMENT_SCALE=109/LAMP_LIMIT;
+const PANEL_WIDTH = lampSize(PANEL_DEFAULT.width);
+const DEFAULT_STATE = Object.freeze({position: lampAt(PANEL_DEFAULT.offset), target: [...LAMP_TARGET], width: PANEL_WIDTH, height: PANEL_WIDTH * 1.25});
+// An arrow key moves the lamp 4 cm, with shift 10 cm.
+const KEY_STEP = metersToWorld(.04), KEY_STEP_SHIFT = metersToWorld(.1);
 const NS = 'http://www.w3.org/2000/svg';
 
 const clamp = (n, a, b) => Math.max(a, Math.min(b, Number.isFinite(n) ? n : a));
@@ -23,8 +30,8 @@ function cleanState(input = {}) {
   const width = clamp(input.width ?? DEFAULT_STATE.width, LIMITS.width[0], LIMITS.width[1]);
   return {
     position: [clamp(+p[0], -LIMITS.x, LIMITS.x), clamp(+p[1], LIMITS.yMin, LIMITS.yMax), clamp(+p[2], -LIMITS.z, LIMITS.z)],
-    target: [Number.isFinite(+t[0]) ? +t[0] : 0, Number.isFinite(+t[1]) ? +t[1] : .55, Number.isFinite(+t[2]) ? +t[2] : 0],
-    width, height: clamp(input.height ?? width * 1.25, .1875, 15),
+    target: [Number.isFinite(+t[0]) ? +t[0] : 0, Number.isFinite(+t[1]) ? +t[1] : LAMP_TARGET[1], Number.isFinite(+t[2]) ? +t[2] : 0],
+    width, height: clamp(input.height ?? width * 1.25, LIMITS.width[0] * 1.25, LIMITS.width[1] * 1.25),
   };
 }
 
@@ -136,7 +143,7 @@ export function createPlacementControls({root, onChange, onSessionChange=()=>{}}
         return;
       }
       if(event.target!==source)return;
-      const step=event.shiftKey?.25:.1;
+      const step=event.shiftKey?KEY_STEP_SHIFT:KEY_STEP;
       if(event.key==='ArrowLeft')state.position[0]-=step;
       else if(event.key==='ArrowRight')state.position[0]+=step;
       else if(event.key==='ArrowUp')state.position[kind==='top'?2:1]+=kind==='top'?-step:step;
@@ -152,7 +159,7 @@ export function createPlacementControls({root, onChange, onSessionChange=()=>{}}
   const sizeWrap = document.createElement('label');
   sizeWrap.className = 'placement-size';
   sizeWrap.innerHTML = '<span>Size</span>';
-  const size = document.createElement('input'); size.type = 'range'; size.min = LIMITS.width[0]; size.max = LIMITS.width[1]; size.step = '.01'; size.setAttribute('aria-label', 'Light size'); sizeWrap.append(size);
+  const size = document.createElement('input'); size.type = 'range'; size.min = LIMITS.width[0]; size.max = LIMITS.width[1]; size.step = '.05'; size.setAttribute('aria-label', 'Light size'); sizeWrap.append(size);
   const sizeInput = () => { if (!enabled) return; state.width = Number(size.value); state.height = state.width * 1.25; notify(); };
   size.addEventListener('input', sizeInput); listeners.push(() => size.removeEventListener('input', sizeInput));
   const powerWrap=document.createElement('div');powerWrap.className='placement-power';
