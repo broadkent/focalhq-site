@@ -80,7 +80,7 @@
 .lens[hidden] { display: none; }
 .lens-value { font-size: 18px; line-height: 1.6; font-weight: 600; color: var(--fg-primary-focus); font-variant-numeric: tabular-nums; }
 .lens-track { position: relative; height: 44px; margin: 0 var(--sp-sm); touch-action: pan-y; }
-.lens-track i { position: absolute; top: 50%; width: 2px; height: 12px; margin: -6px 0 0 -1px; background: var(--quiet); pointer-events: none; }
+.lens-track i { position: absolute; top: 50%; width: 2px; height: 12px; margin: -6px 0 0 -1px; background: var(--fg-quiet); pointer-events: none; }
 .lens-track .thumb { position: absolute; top: 50%; width: var(--stroke); height: 28px; margin: -14px 0 0 calc(var(--stroke) / -2); background: var(--fg-primary-focus); pointer-events: none; }
 .lens:focus-visible { outline: none; }
 .lens:focus-visible .lens-value { text-decoration: underline; text-decoration-thickness: var(--stroke); text-decoration-skip-ink: none; text-underline-offset: 0.15em; }

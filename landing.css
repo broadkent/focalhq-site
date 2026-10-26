@@ -8,7 +8,8 @@
   --fg-secondary: #6B6B6B;
   --fg-tertiary-focus: #FFFFFF;
   --shade: #C8C8C8; /* ink at 20% on the paper, pre-blended: nothing on the page is translucent */
-  --quiet: #8A8A8A; /* an inactive act dot: a pre-blended quiet ink, 3:1 on the paper */
+  --fg-quiet: #B0B0B0; /* ColorTokens.fg_quiet: halfway, fg-secondary to the page (the lens ruler's ticks) */
+  --dot-large: 12px; --dot-small: 6px; /* InkUI DotTokens: solid ink, only the size shows state; the gap between dots is 8 px */
   --round: 50%;
   --r-sm: 8px; --stroke: 4px;
   --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px; --sp-xxl: 48px;
@@ -23,7 +24,7 @@
     --fg-secondary: #A0A0A0;
     --fg-tertiary-focus: #0A0A0A;
     --shade: #3F3F3F; /* paper ink at 20% on the dark paper, pre-blended */
-    --quiet: #707070;
+    --fg-quiet: #595959;
     color-scheme: dark;
   }
 }
@@ -135,8 +136,9 @@ footer a:focus-visible { color: var(--fg-primary-focus); }
 /* ---- the concept caption: plain text in the window (stage.css); the tour's pause is a hidden button (round 9) ---- */
 .caption { font-weight: 700; color: var(--fg-primary-focus); }
 .caption-still { display: none; font-weight: 700; color: var(--fg-primary-focus); }
-/* The act dots: one per act, centered under the window; the active one is big (solid ink), the rest a quiet pre-blended tone. 44 px targets. */
-.acts { display: flex; justify-content: center; margin-top: var(--sp-xs); } /* a small step below the window */
+/* The act dots: one per act, centered under the window. InkUI DotTokens: every dot is solid ink (fg-primary-focus) and only the size
+   shows the state, 12 px for the active act and 6 px for the rest. The 44 px targets set the spacing between dots. */
+.acts { display: flex; justify-content: center; margin-top: var(--sp-xs); position: relative; z-index: 1; } /* a small step below the window; it sits above the scene's lower bleed band (stage.css .bleed), whose fade-to-paper would otherwise wash the dots out */
 .acts [role=radio] {
   width: 44px; height: 44px; padding: 0; margin: 0;
   display: flex; align-items: center; justify-content: center;
@@ -145,11 +147,11 @@ footer a:focus-visible { color: var(--fg-primary-focus); }
   cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
 .acts .dot {
-  display: block; width: var(--sp-sm); height: var(--sp-sm); border-radius: var(--round);
-  background: var(--quiet);
-  transition: width 300ms ease-in-out, height 300ms ease-in-out, background-color 300ms ease-in-out; /* AnimationTokens.normal, standard */
+  display: block; width: var(--dot-small); height: var(--dot-small); border-radius: var(--round);
+  background: var(--fg-primary-focus);
+  transition: width 300ms ease-in-out, height 300ms ease-in-out; /* AnimationTokens.normal, standard */
 }
-.acts [role=radio][aria-checked=true] .dot { width: var(--sp-md); height: var(--sp-md); background: var(--fg-primary-focus); }
+.acts [role=radio][aria-checked=true] .dot { width: var(--dot-large); height: var(--dot-large); }
 .acts [role=radio]:focus-visible { outline: none; }
 .acts [role=radio]:focus-visible .dot { outline: var(--stroke) solid var(--fg-primary-focus); outline-offset: var(--sp-xs); }
 /* "Pause demo" for keyboard users: no visible chrome until it has focus (WCAG 2.2.2). */
