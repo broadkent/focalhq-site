@@ -65,11 +65,13 @@ export function fadeBands(frame, [w, h]) {
 
 /**
  * The picture's share (1 the picture, 0 the paper) at canvas row [y] (CSS px from the top) of a canvas
- * [h] high with [bands]: a smoothstep from each banded edge in. Mirrors overscanFadeAt in OVERSCAN_GLSL.
+ * [h] high with [bands]: a smoothstep from each banded edge in; the top one eases in from the square of its
+ * share, so a bar the window set draws just under the heading stays paper (200 mm). Mirrors overscanFadeAt in
+ * OVERSCAN_GLSL.
  */
 export function overscanFade(y, h, {top, bottom}) {
   const s = t => {const c = Math.min(1, Math.max(0, t));return c * c * (3 - 2 * c);};
-  return (top > 0 ? s(y / top) : 1) * (bottom > 0 ? s((h - y) / bottom) : 1);
+  return (top > 0 ? s((y / top) ** 2) : 1) * (bottom > 0 ? s((h - y) / bottom) : 1);
 }
 
 /**
@@ -109,7 +111,7 @@ export const OVERSCAN_GLSL = `
   // paper over the whole picture, frame and all.
   float overscanFadeAt(vec2 uv){
     float y=(1.-uv.y)*overscanFadePx.z;
-    float top=overscanFadePx.x>0.?smoothstep(0.,1.,clamp(y/overscanFadePx.x,0.,1.)):1.;
+    float top=overscanFadePx.x>0.?smoothstep(0.,1.,pow(clamp(y/overscanFadePx.x,0.,1.),2.)):1.;
     float bottom=overscanFadePx.y>0.?smoothstep(0.,1.,clamp((overscanFadePx.z-y)/overscanFadePx.y,0.,1.)):1.;
     return top*bottom*(1.-overscanDim);
   }
