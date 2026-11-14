@@ -196,3 +196,4 @@ footer a:focus-visible { color: var(--fg-primary-focus); }
   /* The phone bleed band is sp-lg (stage.css): the note under the sign-up fits the first screen. */
   .demo, .join { margin-top: var(--sp-xl); } /* round 9: room above the window and above the sign-up */
 }
+.legal-links { margin-top: var(--sp-sm); } /* "Privacy and Terms": the smallest label style, a quiet line under the footer */
